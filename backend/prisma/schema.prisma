@@ -1,0 +1,113 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // "file:./dev.db" — arquivo local, sem servidor externo
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  client
+  agent
+}
+
+enum Priority {
+  baixa
+  media
+  alta
+  urgente
+}
+
+// Segue exatamente o RF07 do levantamento de requisitos: Novo → Em
+// atendimento → Resolvido → Fechado.
+enum TicketStatus {
+  novo
+  em_atendimento
+  resolvido
+  fechado
+}
+
+enum Category {
+  hardware
+  software
+  rede
+  acesso
+  outro
+}
+
+enum Team {
+  Infraestrutura
+  Suporte_N1
+  Suporte_N2
+  Seguranca
+  Redes
+}
+
+// Quem enviou a mensagem: técnico (agente) ou usuário (cliente).
+// Nomeado MessageSender para não colidir com o enum Role.
+enum MessageSender {
+  tecnico
+  usuario
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  department   String? // setor do cliente, ou equipe declarada do agente
+  createdAt    DateTime @default(now())
+
+  ticketsOpened   Ticket[]  @relation("TicketsOpenedByClient")
+  ticketsAssigned Ticket[]  @relation("TicketsAssignedToAgent")
+  messages        Message[]
+}
+
+model Ticket {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  category    Category
+  priority    Priority     @default(baixa)
+  status      TicketStatus @default(novo)
+  team        Team
+  sla         String // ex: "4h" — mantido como string para bater com o frontend
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  closedAt    DateTime?
+
+  client   User   @relation("TicketsOpenedByClient", fields: [clientId], references: [id])
+  clientId String
+
+  agent   User?   @relation("TicketsAssignedToAgent", fields: [agentId], references: [id])
+  agentId String?
+
+  messages Message[]
+  rating   Rating?
+}
+
+model Message {
+  id       String        @id @default(uuid())
+  text     String
+  from     MessageSender
+  sentAt   DateTime      @default(now())
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId String
+
+  // Quem escreveu, para auditoria — pode ser cliente ou agente, e o campo
+  // "from" acima já diz de qual lado a bolha aparece na UI.
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model Rating {
+  id      String @id @default(uuid())
+  score   Int // 1 a 5
+  comment String
+
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId String @unique
+}
