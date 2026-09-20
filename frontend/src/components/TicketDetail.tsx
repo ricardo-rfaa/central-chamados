@@ -65,7 +65,7 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: isMobile ? 'auto' : '100%', minHeight: isMobile ? '100%' : undefined }}>
       {/* header */}
       <div style={{ padding: isMobile ? '12px 14px' : '16px 24px', borderBottom: '1px solid #30363d', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 10 : 16, flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
         <button onClick={onBack} style={{ background: 'none', border: '1px solid #30363d', borderRadius: 4, color: '#8b949e', cursor: 'pointer', padding: '5px 10px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
@@ -81,9 +81,16 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : sidebarOpen ? '1fr 300px' : '1fr auto', flex: 1, overflow: 'hidden', transition: 'grid-template-columns 0.15s' }}>
+      <div style={{
+        display: isMobile ? 'flex' : 'grid',
+        flexDirection: isMobile ? 'column' : undefined,
+        gridTemplateColumns: isMobile ? undefined : sidebarOpen ? '1fr 300px' : '1fr auto',
+        flex: isMobile ? 'none' : 1,
+        overflow: isMobile ? 'visible' : 'hidden',
+        transition: 'grid-template-columns 0.15s',
+      }}>
         {/* main */}
-        <div style={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid #30363d', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderRight: isMobile ? 'none' : '1px solid #30363d', overflow: isMobile ? 'visible' : 'hidden', flexShrink: 0 }}>
           {/* description */}
           <div style={{ padding: isMobile ? 14 : 24, borderBottom: '1px solid #21262d' }}>
             <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'var(--font-mono)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Descrição</div>
@@ -91,7 +98,7 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
           </div>
 
           {/* messages */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? 14 : 24 }}>
+          <div style={{ flex: isMobile ? 'none' : 1, overflowY: isMobile ? 'visible' : 'auto', padding: isMobile ? 14 : 24 }}>
             <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'var(--font-mono)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Comunicação — {ticket.messages.length} mensagem{ticket.messages.length !== 1 ? 's' : ''}
             </div>
@@ -151,7 +158,7 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
 
         {/* sidebar */}
         {isMobile ? (
-          <div style={{ borderTop: '1px solid #30363d' }}>
+          <div style={{ borderTop: '1px solid #30363d', flexShrink: 0 }}>
             <button
               onClick={() => setSidebarOpen(o => !o)}
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#161b22', border: 'none', color: '#e6edf3', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em', cursor: 'pointer' }}
@@ -160,7 +167,7 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
               <span style={{ transform: sidebarOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
             </button>
             {sidebarOpen && (
-              <div style={{ overflowY: 'auto', padding: 14 }}>
+              <div style={{ padding: 14, paddingBottom: 32 }}>
                 <TicketSidebarContent
                   ticket={ticket} isAgent={isAgent} busy={busy}
                   assumeTicket={assumeTicket} resolveTicket={resolveTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
