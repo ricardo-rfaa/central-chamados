@@ -82,7 +82,7 @@ export default function App() {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0d1117' }}>
         <TopBar onNew={() => setShowForm(true)} onHome={() => setView('dashboard')} onNewAgent={() => setShowRegisterAgent(true)} />
-        <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
           <TicketDetail ticket={fresh} onBack={() => setView('dashboard')} onUpdate={updateTicket} />
         </div>
         {showForm && <NewTicketForm onClose={() => setShowForm(false)} onCreated={addTicket} />}
