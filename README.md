@@ -164,38 +164,29 @@ EXPO_PUBLIC_API_URL="http://192.168.0.10:3333"
 
 ### Importante sobre o IP
 
-- Se você usar celular real, use o IP do computador na mesma rede Wi‑Fi.
-- Se usar emulador Android do Android Studio, normalmente o valor é:
+O valor certo depende de onde você vai testar:
 
-```env
-EXPO_PUBLIC_API_URL="http://10.0.2.2:3333"
-```
+- **No navegador** (`npx expo start --web`): pode usar `localhost` normalmente, igual ao frontend web:
+  ```env
+  EXPO_PUBLIC_API_URL="http://localhost:3333"
+  ```
+- **No celular real via Expo Go**: use o IP do computador na mesma rede Wi-Fi (não `localhost` — o celular não enxerga o `localhost` do computador).
+- **No emulador Android do Android Studio**: normalmente o valor é:
+  ```env
+  EXPO_PUBLIC_API_URL="http://10.0.2.2:3333"
+  ```
 
-- Não use `localhost` aqui, porque dentro do app mobile ele não aponta para o computador que está rodando o backend.
+Se você mudar o `.env` com o Expo já aberto, pare (`Ctrl+C`) e rode `npx expo start` de novo — variáveis de ambiente só são lidas na inicialização.
 
 Agora rode o app:
 
 ```bash
-npm start
+npx expo start
 ```
 
-Se quiser abrir diretamente:
-
-```bash
-npm run android
-```
-
-ou
-
-```bash
-npm run ios
-```
-
-ou
-
-```bash
-npm run web
-```
+- Pressione `w` para abrir no navegador
+- Pressione `a` para abrir no emulador Android
+- Ou escaneie o QR code com o app **Expo Go** no celular
 
 ---
 
@@ -220,17 +211,21 @@ Você também pode criar uma conta nova pela tela de cadastro.
 
 1. Abrir terminal do backend e rodar `npm run dev`
 2. Abrir terminal do frontend e rodar `npm run dev`
-3. Abrir terminal do mobile app e rodar `npm start`
+3. Abrir terminal do mobile app e rodar `npx expo start`
 4. Validar que o backend está em `http://localhost:3333`
 5. Testar web em `http://localhost:5173`
-6. Testar mobile usando o Expo no emulador ou dispositivo
+6. Testar mobile usando o Expo no navegador, emulador ou dispositivo
 
 ## Erros comuns
 
-- `npx run dev` dá erro → o correto é `npm run dev`
-- "Não foi possível conectar ao servidor" → backend desligado ou sem rodar
-- Mobile não consegue acessar o backend → IP do computador está errado
-- CORS no navegador → verifique as origens permitidas no backend
+- **`npx run dev` dá erro** → o comando certo é `npm run dev` (sem o `x`). `npx` é só para rodar pacotes como o `prisma` ou o `expo`.
+- **"Não foi possível conectar ao servidor"** → o backend não está rodando, ou parou. Confira o terminal do backend.
+- **Mobile não consegue acessar o backend** → confira se o IP no `.env` do `mobile-app` está correto e se o celular está na mesma rede Wi-Fi do computador. `localhost` só funciona testando pelo navegador (`npx expo start --web`), nunca em celular físico ou emulador.
+- **Mobile-app na web dá "Não foi possível conectar ao servidor" mesmo com backend rodando** → CORS. O backend só libera as origens configuradas em `CORS_ORIGIN` (por padrão, `localhost:5173` e `localhost:8081` — as portas do Vite e do Expo web). Confira se o `.env` do **backend** não tem um `CORS_ORIGIN` mais antigo sobrescrevendo esses defaults, e reinicie o backend depois de qualquer mudança no `.env`.
+- **Erro `expo-asset`/`expo-constants`/`expo-linking cannot be found`** ao rodar `npx expo start` → dependências do `expo-router` que precisam estar declaradas explicitamente no `package.json`. Rode `npm install` de novo depois de confirmar que o `package.json` está atualizado com essas três dependências.
+- **`splash` property is not allowed** no `app.json` → o campo `splash` no nível raiz foi descontinuado a partir do SDK 52 do Expo. Use o plugin `expo-splash-screen` dentro de `plugins`, como já está configurado neste projeto.
+- **`Unable to resolve "query-string"`** ao testar na web → o `expo-router` usa esse pacote internamente sem declará-lo como dependência própria. Precisa estar no `package.json` como dependência direta: `"query-string": "^7.1.3"` (não use a versão 8 ou superior, que quebra o import interno do expo-router).
+- **`_ExpoSecureStore.default.deleteValueWithKeyAsync is not a function`** ao testar o mobile-app na web → `expo-secure-store` não tem implementação web por design da própria biblioteca (não simula "seguro" via localStorage, para não dar falsa sensação de segurança). O projeto já usa uma abstração (`src/lib/storage.ts`) que cai para `localStorage` na web automaticamente — se esse erro aparecer, confira se o `AuthContext.tsx` está importando de `storage.ts` e não usando `SecureStore` diretamente.
 
 ---
 
@@ -254,5 +249,5 @@ npm run dev
 # mobile
 cd ../mobile-app
 npm install
-npm start
+npx expo start
 ```
