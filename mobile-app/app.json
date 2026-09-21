@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Central de Chamados",
+    "slug": "central-chamados",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "central-chamados",
+    "splash": {
+      "backgroundColor": "#0d1117"
+    },
+    "android": {
+      "package": "com.centralchamados.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0d1117"
+      }
+    },
+    "plugins": ["expo-router", "expo-secure-store"]
+  }
+}
