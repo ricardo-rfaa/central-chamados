@@ -1,41 +1,78 @@
 # Central de Chamados — Como rodar
 
-Projeto com duas partes: **frontend** (React + Vite) e **backend** (Node + Express + Prisma). As duas precisam estar rodando ao mesmo tempo, cada uma no seu próprio terminal.
+Este projeto tem 3 partes:
 
-## Pré-requisito
+- **backend**: API em Node.js + Express + Prisma
+- **frontend**: painel web em React + Vite
+- **mobile-app**: aplicativo em React Native + Expo
 
-- **Node.js** instalado (versão 18 ou mais recente). Teste com:
-  
-  ```
-  node -v
-  ```
-  
-  Se não tiver, baixe em https://nodejs.org (versão LTS).
+Para funcionar corretamente, o backend precisa estar rodando antes de abrir o frontend ou o app mobile.
 
-## 1. Organize as pastas
+## Primeiro: o que você precisa ter instalado
 
-Deve ficar assim:
+Antes de começar, confirme se o seu computador tem:
 
+- Node.js 18 ou mais recente
+- npm
+- Expo CLI
+
+Teste com:
+
+```bash
+node -v
+npm -v
 ```
+
+Se o Node não estiver instalado, baixe a versão LTS em:
+https://nodejs.org
+
+---
+
+## Estrutura do projeto
+
+Você deve ter uma pasta assim:
+
+```bash
 central-chamados/
+├── backend/
 ├── frontend/
-└── backend/
+├── mobile-app/
+├── README.md
+└── ...
 ```
 
-## 2. Backend (primeiro terminal)
+---
+
+## 1) Rodando o backend
+
+Abra um terminal e execute:
 
 ```bash
 cd central-chamados/backend
 npm install
 ```
 
-Copie o arquivo de exemplo de variáveis de ambiente:
+Agora crie o arquivo `.env` a partir do exemplo:
 
-- **Mac/Linux:** `cp .env.example .env`
-- **Windows (PowerShell):** `Copy-Item .env.example .env`
-- **Windows (CMD):** `copy .env.example .env`
+- Mac/Linux:
 
-Depois:
+```bash
+cp .env.example .env
+```
+
+- Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+- Windows CMD:
+
+```cmd
+copy .env.example .env
+```
+
+Depois rode:
 
 ```bash
 npx prisma migrate dev --name init
@@ -43,34 +80,179 @@ npm run seed
 npm run dev
 ```
 
-Deixe esse terminal aberto — é o servidor rodando em `http://localhost:3333`.
+Se tudo estiver certo, o backend vai ficar disponível em:
 
-## 3. Frontend (segundo terminal)
+```text
+http://localhost:3333
+```
+
+> Deixe esse terminal aberto. Ele precisa continuar rodando.
+
+---
+
+## 2) Rodando o frontend web
+
+Abra outro terminal e execute:
 
 ```bash
 cd central-chamados/frontend
 npm install
 ```
 
-Copie o `.env` (mesmo comando do passo anterior, adaptado à pasta `frontend`).
+Crie o arquivo `.env`:
+
+- Mac/Linux:
+
+```bash
+cp .env.example .env
+```
+
+- Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+- Windows CMD:
+
+```cmd
+copy .env.example .env
+```
+
+No frontend, o arquivo normalmente já vem assim:
+
+```env
+VITE_API_URL="http://localhost:3333"
+```
+
+Agora inicie o frontend:
 
 ```bash
 npm run dev
 ```
 
-Abra a URL que aparecer no terminal (geralmente `http://localhost:5173`).
+Ele vai mostrar uma URL como:
 
-## 4. Testar
+```text
+http://localhost:5173
+```
 
-Contas de exemplo (senha para ambas: `123456`):
+Abra essa URL no navegador.
 
-- **Cliente:** `cliente@demo.com`
-- **Atendente:** `atendente@demo.com`
+---
 
-Ou crie uma conta nova de cliente pela própria tela de login ("Ainda não tenho conta").
+## 3) Rodando o app mobile
+
+Abra um terceiro terminal e execute:
+
+```bash
+cd central-chamados/mobile-app
+npm install
+```
+
+O app mobile precisa saber onde está o backend. Crie um arquivo `.env` dentro da pasta `mobile-app` com este conteúdo:
+
+```env
+EXPO_PUBLIC_API_URL="http://SEU_IP_DA_MAQUINA:3333"
+```
+
+Exemplo:
+
+```env
+EXPO_PUBLIC_API_URL="http://192.168.0.10:3333"
+```
+
+### Importante sobre o IP
+
+- Se você usar celular real, use o IP do computador na mesma rede Wi‑Fi.
+- Se usar emulador Android do Android Studio, normalmente o valor é:
+
+```env
+EXPO_PUBLIC_API_URL="http://10.0.2.2:3333"
+```
+
+- Não use `localhost` aqui, porque dentro do app mobile ele não aponta para o computador que está rodando o backend.
+
+Agora rode o app:
+
+```bash
+npm start
+```
+
+Se quiser abrir diretamente:
+
+```bash
+npm run android
+```
+
+ou
+
+```bash
+npm run ios
+```
+
+ou
+
+```bash
+npm run web
+```
+
+---
+
+## 4) Como testar o sistema
+
+Depois de rodar tudo, teste com estas contas:
+
+- Cliente: `cliente@demo.com`
+- Atendente: `atendente@demo.com`
+
+Senha para as duas:
+
+```text
+123456
+```
+
+Você também pode criar uma conta nova pela tela de cadastro.
+
+---
+
+## 5) Ordem recomendada para rodar tudo
+
+1. Abrir terminal do backend e rodar `npm run dev`
+2. Abrir terminal do frontend e rodar `npm run dev`
+3. Abrir terminal do mobile app e rodar `npm start`
+4. Validar que o backend está em `http://localhost:3333`
+5. Testar web em `http://localhost:5173`
+6. Testar mobile usando o Expo no emulador ou dispositivo
 
 ## Erros comuns
 
-- **`npx run dev` dá erro** → o comando certo é `npm run dev` (sem o `x`). `npx` é só para rodar pacotes como o `prisma`.
-- **"Não foi possível conectar ao servidor"** na tela de login → o backend não está rodando, ou parou. Confira o terminal do backend.
-- **Erro do Prisma sobre OpenSSL/binário** → normalmente só acontece em ambientes sandboxed (StackBlitz). Rodando localmente como este guia descreve, não deve ocorrer.
+- `npx run dev` dá erro → o correto é `npm run dev`
+- "Não foi possível conectar ao servidor" → backend desligado ou sem rodar
+- Mobile não consegue acessar o backend → IP do computador está errado
+- CORS no navegador → verifique as origens permitidas no backend
+
+---
+
+## Resumo rápido
+
+Se você quiser o caminho mais simples:
+
+```bash
+# backend
+cd central-chamados/backend
+npm install
+npx prisma migrate dev --name init
+npm run seed
+npm run dev
+
+# frontend
+cd ../frontend
+npm install
+npm run dev
+
+# mobile
+cd ../mobile-app
+npm install
+npm start
+```
