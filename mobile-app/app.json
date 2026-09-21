@@ -6,15 +6,24 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "scheme": "central-chamados",
-    "splash": {
-      "backgroundColor": "#0d1117"
-    },
     "android": {
       "package": "com.centralchamados.app",
       "adaptiveIcon": {
         "backgroundColor": "#0d1117"
       }
     },
-    "plugins": ["expo-router", "expo-secure-store"]
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0d1117"
+        }
+      ]
+    ]
   }
 }
