@@ -6,11 +6,19 @@ const ticketRoutes = require("./modules/tickets/ticket.routes");
 
 const app = express();
 
-// Libera o front do Vite (padrão: http://localhost:5173) a chamar esta API.
-// Ajuste CORS_ORIGIN no .env se o front rodar em outra porta/host.
+// Libera múltiplas origens de desenvolvimento: o front Vite (5173) e o
+// Expo web (8081, porta padrão do Metro). Requisições nativas (Expo Go
+// no celular/emulador) não passam por CORS — isso só afeta quem chama
+// a partir de um navegador. CORS_ORIGIN no .env pode sobrescrever com
+// uma lista separada por vírgula, se precisar de outra porta/host.
+const defaultOrigins = ["http://localhost:5173", "http://localhost:8081"];
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+  : defaultOrigins;
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+    origin: allowedOrigins,
   })
 );
 app.use(express.json());
