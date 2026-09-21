@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import * as SecureStore from 'expo-secure-store'
 import type { User, LoginResponse } from '../types/auth'
 import { loginClient, loginAgent, registerClient, registerAgent } from '../services/authService'
+import { storage } from '../lib/storage'
 
 interface AuthContextData {
   user: User | null
@@ -17,10 +17,8 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData | undefined>(undefined)
 
 // Mesma ideia da versão web: uma chave só, guardando { token, user }.
-// SecureStore é o equivalente RN ao localStorage — mas é assíncrono
-// (não existe leitura síncrona de armazenamento seguro em RN) e criptografa
-// o valor no Keychain (iOS) / Keystore (Android), então é mais seguro
-// para guardar o token do que AsyncStorage puro.
+// storage abstrai SecureStore (nativo) vs localStorage (web) — ver
+// src/lib/storage.ts para o motivo dessa diferença.
 const STORAGE_KEY = 'chamados_session'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,21 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function restoreSession() {
     try {
-      const raw = await SecureStore.getItemAsync(STORAGE_KEY)
+      const raw = await storage.getItem(STORAGE_KEY)
       if (raw) {
         const parsed: LoginResponse = JSON.parse(raw)
         setUser(parsed.user)
         setToken(parsed.token)
       }
     } catch {
-      await SecureStore.deleteItemAsync(STORAGE_KEY)
+      await storage.deleteItem(STORAGE_KEY)
     } finally {
       setIsLoading(false)
     }
   }
 
   async function persist(session: LoginResponse) {
-    await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(session))
+    await storage.setItem(STORAGE_KEY, JSON.stringify(session))
     setUser(session.user)
     setToken(session.token)
   }
@@ -77,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
-    await SecureStore.deleteItemAsync(STORAGE_KEY)
+    await storage.deleteItem(STORAGE_KEY)
     setUser(null)
     setToken(null)
   }
