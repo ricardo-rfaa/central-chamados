@@ -1,60 +1,70 @@
-# Central de Chamados — Como rodar
+# Central de Chamados
 
-Este projeto tem 3 partes:
+Sistema de gerenciamento de chamados com interfaces web e mobile e uma API centralizada. O projeto é organizado em três aplicações que trabalham em conjunto: backend, frontend web e aplicativo mobile.
 
-- **backend**: API em Node.js + Express + Prisma
-- **frontend**: painel web em React + Vite
-- **mobile-app**: aplicativo em React Native + Expo
+## Objetivo
 
-Para funcionar corretamente, o backend precisa estar rodando antes de abrir o frontend ou o app mobile.
+Centralizar o registro e o acompanhamento de solicitações, oferecendo uma experiência para clientes e atendentes.
 
-## Primeiro: o que você precisa ter instalado
+## Funcionalidades
 
-Antes de começar, confirme se o seu computador tem:
+- Acesso ao sistema com perfis de cliente e atendente
+- Criação de conta e autenticação
+- Interface web para utilização do sistema
+- Aplicativo mobile para acesso em dispositivos móveis
+- API para comunicação entre as aplicações
+
+## Tecnologias
+
+| Camada | Tecnologias |
+| --- | --- |
+| Backend | Node.js, Express e Prisma |
+| Frontend web | React e Vite |
+| Aplicativo mobile | React Native e Expo |
+
+## Estrutura do projeto
+
+```text
+central-chamados/
+├── backend/       # API, regras de negócio e acesso a dados
+├── frontend/      # Aplicação web
+├── mobile-app/    # Aplicativo React Native / Expo
+└── README.md
+```
+
+## Pré-requisitos
+
+Antes de começar, instale:
 
 - Node.js 18 ou mais recente
 - npm
-- Expo CLI
+- Expo Go, caso queira testar em um dispositivo físico
 
-Teste com:
+Verifique as versões instaladas:
 
 ```bash
 node -v
 npm -v
 ```
 
-Se o Node não estiver instalado, baixe a versão LTS em:
-https://nodejs.org
+Se necessário, instale o Node.js pela página oficial: https://nodejs.org.
 
----
+## Instalação e execução
 
-## Estrutura do projeto
+As três aplicações possuem dependências próprias. Execute os comandos a seguir na raiz do repositório, abrindo um terminal separado para cada aplicação.
 
-Você deve ter uma pasta assim:
+### 1. Backend
 
-```bash
-central-chamados/
-├── backend/
-├── frontend/
-├── mobile-app/
-├── README.md
-└── ...
-```
-
----
-
-## 1) Rodando o backend
-
-Abra um terminal e execute:
+Entre na pasta e instale as dependências:
 
 ```bash
 cd central-chamados/backend
 npm install
 ```
 
-Agora crie o arquivo `.env` a partir do exemplo:
+Crie o arquivo de ambiente a partir do exemplo:
 
-- Mac/Linux:
+- macOS/Linux:
 
 ```bash
 cp .env.example .env
@@ -72,7 +82,7 @@ Copy-Item .env.example .env
 copy .env.example .env
 ```
 
-Depois rode:
+Configure no arquivo `.env` os valores necessários para o seu ambiente. Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
 
 ```bash
 npx prisma migrate dev --name init
@@ -80,174 +90,108 @@ npm run seed
 npm run dev
 ```
 
-Se tudo estiver certo, o backend vai ficar disponível em:
+Por padrão, a API ficará disponível em:
 
 ```text
 http://localhost:3333
 ```
 
-> Deixe esse terminal aberto. Ele precisa continuar rodando.
+Mantenha esse terminal aberto enquanto utilizar o sistema.
 
----
+### 2. Frontend web
 
-## 2) Rodando o frontend web
-
-Abra outro terminal e execute:
+Em outro terminal:
 
 ```bash
 cd central-chamados/frontend
 npm install
 ```
 
-Crie o arquivo `.env`:
-
-- Mac/Linux:
-
-```bash
-cp .env.example .env
-```
-
-- Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-- Windows CMD:
-
-```cmd
-copy .env.example .env
-```
-
-No frontend, o arquivo normalmente já vem assim:
+Crie o arquivo `.env` usando o mesmo procedimento da seção do backend (copiando `.env.example`). Confira se a URL da API está configurada:
 
 ```env
 VITE_API_URL="http://localhost:3333"
 ```
 
-Agora inicie o frontend:
+Inicie a aplicação:
 
 ```bash
 npm run dev
 ```
 
-Ele vai mostrar uma URL como:
+O Vite exibirá o endereço local, normalmente:
 
 ```text
 http://localhost:5173
 ```
 
-Abra essa URL no navegador.
+Abra o endereço informado no navegador.
 
----
+### 3. Aplicativo mobile
 
-## 3) Rodando o app mobile
-
-Abra um terceiro terminal e execute:
+Em um terceiro terminal:
 
 ```bash
 cd central-chamados/mobile-app
 npm install
 ```
 
-O app mobile precisa saber onde está o backend. Crie um arquivo `.env` dentro da pasta `mobile-app` com este conteúdo:
+Crie um arquivo `.env` na pasta `mobile-app` e informe o endereço da API:
 
 ```env
 EXPO_PUBLIC_API_URL="http://SEU_IP_DA_MAQUINA:3333"
 ```
 
-Exemplo:
+Escolha o endereço conforme o ambiente de execução:
 
-```env
-EXPO_PUBLIC_API_URL="http://192.168.0.10:3333"
-```
+- **Navegador (Expo web):** use `http://localhost:3333`.
+- **Celular físico com Expo Go:** use o endereço IP do computador na rede Wi-Fi, por exemplo `http://192.168.0.10:3333`. O celular e o computador devem estar na mesma rede.
+- **Emulador Android do Android Studio:** normalmente use `http://10.0.2.2:3333`.
 
-### Importante sobre o IP
-
-O valor certo depende de onde você vai testar:
-
-- **No navegador** (`npx expo start --web`): pode usar `localhost` normalmente, igual ao frontend web:
-  ```env
-  EXPO_PUBLIC_API_URL="http://localhost:3333"
-  ```
-- **No celular real via Expo Go**: use o IP do computador na mesma rede Wi-Fi (não `localhost` — o celular não enxerga o `localhost` do computador).
-- **No emulador Android do Android Studio**: normalmente o valor é:
-  ```env
-  EXPO_PUBLIC_API_URL="http://10.0.2.2:3333"
-  ```
-
-Se você mudar o `.env` com o Expo já aberto, pare (`Ctrl+C`) e rode `npx expo start` de novo — variáveis de ambiente só são lidas na inicialização.
-
-Agora rode o app:
+Inicie o Expo:
 
 ```bash
 npx expo start
 ```
 
-- Pressione `w` para abrir no navegador
-- Pressione `a` para abrir no emulador Android
-- Ou escaneie o QR code com o app **Expo Go** no celular
+A partir do terminal do Expo:
 
----
+- Pressione `w` para abrir no navegador.
+- Pressione `a` para abrir no emulador Android.
+- Ou leia o QR code com o Expo Go no celular.
 
-## 4) Como testar o sistema
+Se alterar o arquivo `.env` com o Expo em execução, encerre o processo com `Ctrl+C` e inicie novamente para carregar as novas variáveis.
 
-Depois de rodar tudo, teste com estas contas:
+## Acesso para demonstração
 
-- Cliente: `cliente@demo.com`
-- Atendente: `atendente@demo.com`
+O projeto disponibiliza as seguintes contas de demonstração:
 
-Senha para as duas:
+| Perfil | E-mail |
+| --- | --- |
+| Cliente | `cliente@demo.com` |
+| Atendente | `atendente@demo.com` |
+
+Senha para ambas as contas:
 
 ```text
 123456
 ```
 
-Você também pode criar uma conta nova pela tela de cadastro.
+Também é possível criar uma nova conta pela tela de cadastro.
 
----
+## Ordem de inicialização
 
-## 5) Ordem recomendada para rodar tudo
+Para utilizar o sistema localmente:
 
-1. Abrir terminal do backend e rodar `npm run dev`
-2. Abrir terminal do frontend e rodar `npm run dev`
-3. Abrir terminal do mobile app e rodar `npx expo start`
-4. Validar que o backend está em `http://localhost:3333`
-5. Testar web em `http://localhost:5173`
-6. Testar mobile usando o Expo no navegador, emulador ou dispositivo
+1. Inicie o backend com `npm run dev`.
+2. Inicie o frontend web com `npm run dev`.
+3. Inicie o aplicativo mobile com `npx expo start`, se for utilizá-lo.
+4. Acesse o frontend em `http://localhost:5173` e confirme que a API está disponível em `http://localhost:3333`.
 
-## Erros comuns
+## Contribuição
 
-- **`npx run dev` dá erro** → o comando certo é `npm run dev` (sem o `x`). `npx` é só para rodar pacotes como o `prisma` ou o `expo`.
-- **"Não foi possível conectar ao servidor"** → o backend não está rodando, ou parou. Confira o terminal do backend.
-- **Mobile não consegue acessar o backend** → confira se o IP no `.env` do `mobile-app` está correto e se o celular está na mesma rede Wi-Fi do computador. `localhost` só funciona testando pelo navegador (`npx expo start --web`), nunca em celular físico ou emulador.
-- **Mobile-app na web dá "Não foi possível conectar ao servidor" mesmo com backend rodando** → CORS. O backend só libera as origens configuradas em `CORS_ORIGIN` (por padrão, `localhost:5173` e `localhost:8081` — as portas do Vite e do Expo web). Confira se o `.env` do **backend** não tem um `CORS_ORIGIN` mais antigo sobrescrevendo esses defaults, e reinicie o backend depois de qualquer mudança no `.env`.
-- **Erro `expo-asset`/`expo-constants`/`expo-linking cannot be found`** ao rodar `npx expo start` → dependências do `expo-router` que precisam estar declaradas explicitamente no `package.json`. Rode `npm install` de novo depois de confirmar que o `package.json` está atualizado com essas três dependências.
-- **`splash` property is not allowed** no `app.json` → o campo `splash` no nível raiz foi descontinuado a partir do SDK 52 do Expo. Use o plugin `expo-splash-screen` dentro de `plugins`, como já está configurado neste projeto.
-- **`Unable to resolve "query-string"`** ao testar na web → o `expo-router` usa esse pacote internamente sem declará-lo como dependência própria. Precisa estar no `package.json` como dependência direta: `"query-string": "^7.1.3"` (não use a versão 8 ou superior, que quebra o import interno do expo-router).
-- **`_ExpoSecureStore.default.deleteValueWithKeyAsync is not a function`** ao testar o mobile-app na web → `expo-secure-store` não tem implementação web por design da própria biblioteca (não simula "seguro" via localStorage, para não dar falsa sensação de segurança). O projeto já usa uma abstração (`src/lib/storage.ts`) que cai para `localStorage` na web automaticamente — se esse erro aparecer, confira se o `AuthContext.tsx` está importando de `storage.ts` e não usando `SecureStore` diretamente.
+Contribuições são bem-vindas. Para propor mudanças, crie uma branch a partir de `main`, implemente e teste suas alterações e abra um pull request descrevendo o que foi modificado.
 
----
+## Licença
 
-## Resumo rápido
-
-Se você quiser o caminho mais simples:
-
-```bash
-# backend
-cd central-chamados/backend
-npm install
-npx prisma migrate dev --name init
-npm run seed
-npm run dev
-
-# frontend
-cd ../frontend
-npm install
-npm run dev
-
-# mobile
-cd ../mobile-app
-npm install
-npx expo start
-```
+Consulte o arquivo de licença do repositório para informações sobre uso e distribuição.
