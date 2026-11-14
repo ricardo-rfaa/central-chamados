@@ -82,7 +82,15 @@ Copy-Item .env.example .env
 copy .env.example .env
 ```
 
-Configure no arquivo `.env` os valores necessários para o seu ambiente. Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
+O exemplo já autoriza as duas origens web usadas no desenvolvimento: Vite (`http://localhost:5173`) e Expo web (`http://localhost:8081`). Se o frontend for executado em outra origem/porta, adicione-a explicitamente à variável `CORS_ORIGIN`, separando as origens por vírgula:
+
+```env
+CORS_ORIGIN="http://localhost:5173,http://localhost:8081,http://localhost:3000"
+```
+
+Mantenha somente as origens necessárias ao seu ambiente; não use curingas nem adicione origens públicas sem necessidade. O CORS se aplica a navegadores; o aplicativo nativo não depende dessa configuração.
+
+Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
 
 ```bash
 npx prisma migrate dev --name init

@@ -69,7 +69,7 @@ async function confirmClosure(req, res) {
     const ticket = await ticketService.confirmClosure(req.user, req.params.id);
     res.status(200).json(ticket);
   } catch (err) {
-    res.status(403).json({ message: err.message });
+    res.status(err.statusCode || 403).json({ message: err.message });
   }
 }
 
@@ -84,7 +84,7 @@ async function rate(req, res) {
     const ticket = await ticketService.rateTicket(req.user, req.params.id, score, comment ?? "");
     res.status(200).json(ticket);
   } catch (err) {
-    res.status(403).json({ message: err.message });
+    res.status(err.statusCode || 403).json({ message: err.message });
   }
 }
 
