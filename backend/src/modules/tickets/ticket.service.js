@@ -156,11 +156,29 @@ async function rateTicket(user, ticketId, score, comment) {
     throw new Error("Só é possível avaliar um chamado fechado.");
   }
 
-  await prisma.rating.upsert({
-    where: { ticketId },
-    create: { ticketId, score, comment },
-    update: { score, comment },
-  });
+  // RF11: uma avaliação é definitiva. Não sobrescreva uma avaliação
+  // existente; a constraint única de ticketId também protege contra
+  // duas requisições simultâneas tentando avaliar o mesmo chamado.
+  const existingRating = await prisma.rating.findUnique({ where: { ticketId } });
+  if (existingRating) {
+    const error = new Error("Este chamado já foi avaliado e a avaliação não pode ser alterada.");
+    error.statusCode = 409;
+    throw error;
+  }
+
+  try {
+    await prisma.rating.create({
+      data: { ticketId, score, comment },
+    });
+  } catch (error) {
+    // Trata a corrida entre duas requisições: somente uma pode criar.
+    if (error.code === "P2002") {
+      const conflict = new Error("Este chamado já foi avaliado e a avaliação não pode ser alterada.");
+      conflict.statusCode = 409;
+      throw conflict;
+    }
+    throw error;
+  }
 
   const updated = await prisma.ticket.findUnique({
     where: { id: ticketId },
