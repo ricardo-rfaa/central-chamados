@@ -25,14 +25,16 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
 
   async function run(action: () => Promise<Ticket>) {
-    if (!token) return
+    if (!token) return false
     setBusy(true)
     setError(null)
     try {
       const updated = await action()
       onUpdate(updated)
+      return true
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Não foi possível concluir a ação.')
+      return false
     } finally {
       setBusy(false)
     }
@@ -56,12 +58,12 @@ export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onB
   // RF10: o cliente confirma que o problema foi resolvido, e só então o
   // chamado é fechado — ação separada de avaliar (RF11).
   function confirmClosure() {
-    run(() => confirmClosureApi(token!, ticket.id)).then(() => setShowRating(true))
+    run(() => confirmClosureApi(token!, ticket.id)).then(success => { if (success) setShowRating(true) })
   }
 
   function submitRating() {
     if (!rating || !token) return
-    run(() => rateTicket(token, ticket.id, rating, ratingComment)).then(() => setShowRating(false))
+    run(() => rateTicket(token, ticket.id, rating, ratingComment)).then(success => { if (success) setShowRating(false) })
   }
 
   return (
@@ -261,7 +263,7 @@ function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTick
       {/* rating display */}
       {ticket.rating && (
         <div style={{ marginTop: 24, padding: 16, background: '#0d1117', borderRadius: 4, border: '1px solid #30363d' }}>
-          <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'var(--font-mono)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Avaliação</div>
+          <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'var(--font-mono)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Avaliação enviada · não pode ser alterada</div>
           <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
             {[1,2,3,4,5].map(s => (
               <span key={s} style={{ fontSize: 14, color: s <= ticket.rating!.score ? '#f0a84a' : '#30363d' }}>★</span>
