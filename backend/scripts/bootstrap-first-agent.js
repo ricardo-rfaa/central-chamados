@@ -1,7 +1,13 @@
 // Local, one-time bootstrap for the first staging agent.
-// Run from backend/ with the staging .env. This is intentionally not an API route.
+// Run from backend/ with backend/.env.staging. This is intentionally not an API route.
 const path = require("node:path");
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+const stagingEnv = require("dotenv").config({
+  path: path.resolve(__dirname, "../.env.staging"),
+});
+if (stagingEnv.parsed) {
+  process.env.DATABASE_URL = stagingEnv.parsed.DATABASE_URL || "";
+  process.env.DIRECT_URL = stagingEnv.parsed.DIRECT_URL || "";
+}
 
 const bcrypt = require("bcrypt");
 const readline = require("node:readline");
@@ -21,32 +27,36 @@ function verifyStagingTarget() {
       "Defina BOOTSTRAP_STAGING_PROJECT_REF com o identificador do projeto de staging antes de continuar."
     );
   }
-  if (!process.env.DATABASE_URL) {
-    throw new SafeSetupError("DATABASE_URL não está configurada no backend/.env.");
-  }
-
-  let databaseUrl;
-  try {
-    databaseUrl = new URL(process.env.DATABASE_URL);
-  } catch {
-    throw new SafeSetupError("DATABASE_URL não contém uma URL válida.");
-  }
-
-  let username = "";
-  try {
-    username = decodeURIComponent(databaseUrl.username);
-  } catch {
-    // Fail closed below without displaying the URL.
-  }
-
-  const pointsToStaging =
-    databaseUrl.hostname === `db.${STAGING_PROJECT_REF}.supabase.co` ||
-    username.endsWith(`.${STAGING_PROJECT_REF}`);
-
-  if (!pointsToStaging) {
+  if (!stagingEnv.parsed || !process.env.DATABASE_URL || !process.env.DIRECT_URL) {
     throw new SafeSetupError(
-      "A conexão não identifica o projeto de staging esperado. Nenhum dado foi alterado."
+      "Configure DATABASE_URL e DIRECT_URL em backend/.env.staging."
     );
+  }
+
+  for (const key of ["DATABASE_URL", "DIRECT_URL"]) {
+    let databaseUrl;
+    try {
+      databaseUrl = new URL(process.env[key]);
+    } catch {
+      throw new SafeSetupError(`${key} em backend/.env.staging não contém uma URL válida.`);
+    }
+
+    let username = "";
+    try {
+      username = decodeURIComponent(databaseUrl.username);
+    } catch {
+      // Fail closed below without displaying the URL.
+    }
+
+    const pointsToStaging =
+      databaseUrl.hostname === `db.${STAGING_PROJECT_REF}.supabase.co` ||
+      username.endsWith(`.${STAGING_PROJECT_REF}`);
+
+    if (!pointsToStaging) {
+      throw new SafeSetupError(
+        `${key} não identifica o projeto de staging esperado. Nenhum dado foi alterado.`
+      );
+    }
   }
 }
 
