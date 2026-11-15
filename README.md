@@ -14,6 +14,16 @@ Centralizar o registro e o acompanhamento de solicitações, oferecendo uma expe
 - Aplicativo mobile para acesso em dispositivos móveis
 - API para comunicação entre as aplicações
 
+## Regra de avaliação dos chamados
+
+Conforme a decisão do projeto (item 4), cada chamado pode receber apenas uma avaliação do cliente. Depois que a avaliação for enviada:
+
+- A nota e o comentário ficam definitivos.
+- O cliente não pode editar a avaliação nem enviar uma segunda avaliação para o mesmo chamado.
+- O sistema informa quando o chamado já foi avaliado.
+
+Essa regra é aplicada no backend e refletida nas interfaces web e mobile.
+
 ## Tecnologias
 
 | Camada | Tecnologias |
