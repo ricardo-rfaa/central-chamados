@@ -14,7 +14,6 @@ const readline = require("node:readline");
 const prisma = require("../src/lib/prisma");
 
 const STAGING_PROJECT_REF = "naydklmjkmwmiudvqise";
-const LOCK_KEY = "central-chamados:first-agent-bootstrap";
 
 class SafeSetupError extends Error {}
 
@@ -155,8 +154,6 @@ async function main() {
   const passwordHash = await bcrypt.hash(password, 12);
   currentStep = "conexão e gravação no staging";
   await prisma.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${LOCK_KEY}))`;
-
     const agents = await tx.user.count({ where: { role: "agent" } });
     if (agents > 0) {
       throw new SafeSetupError(
@@ -172,7 +169,7 @@ async function main() {
     await tx.user.create({
       data: { name, email, passwordHash, role: "agent" },
     });
-  });
+  }, { isolationLevel: "Serializable" });
 
   console.log("\nPrimeira conta de atendente criada no staging.");
   console.log("Entre pela opção de acesso do atendente para validar o fluxo.");
