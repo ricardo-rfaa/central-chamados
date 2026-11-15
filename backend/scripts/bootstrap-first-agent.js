@@ -18,6 +18,8 @@ const LOCK_KEY = "central-chamados:first-agent-bootstrap";
 
 class SafeSetupError extends Error {}
 
+let currentStep = "preparação";
+
 function verifyStagingTarget() {
   if (process.env.VERCEL || process.env.VERCEL_ENV) {
     throw new SafeSetupError("Este procedimento só pode ser executado localmente.");
@@ -149,7 +151,9 @@ async function main() {
     throw new SafeSetupError("Confirmação não recebida. Nenhum dado foi alterado.");
   }
 
+  currentStep = "criação do hash da senha";
   const passwordHash = await bcrypt.hash(password, 12);
+  currentStep = "conexão e gravação no staging";
   await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${LOCK_KEY}))`;
 
@@ -179,8 +183,16 @@ main()
     if (error instanceof SafeSetupError) {
       console.error(error.message);
     } else {
+      const safeName =
+        typeof error?.name === "string" && /^[A-Za-z][A-Za-z0-9_]{0,60}$/.test(error.name)
+          ? error.name
+          : "Error";
+      const safeCode =
+        typeof error?.code === "string" && /^[A-Z][0-9]{4}$/.test(error.code)
+          ? error.code
+          : "sem código";
       console.error(
-        "Não foi possível criar a conta. Confira a conexão local com o staging; nenhum segredo foi exibido."
+        `Falha na etapa "${currentStep}" (${safeName}, código ${safeCode}). Nenhum segredo foi exibido.`
       );
     }
     process.exitCode = 1;
