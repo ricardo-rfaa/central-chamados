@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./modules/auth/auth.routes");
 const ticketRoutes = require("./modules/tickets/ticket.routes");
+const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
@@ -27,6 +28,9 @@ app.use("/", authRoutes);
 app.use("/tickets", ticketRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
+
+// Precisa vir depois de todas as rotas.
+app.use(errorHandler);
 
 const PORT = process.env.PORT ?? 3333;
 app.listen(PORT, () => {
