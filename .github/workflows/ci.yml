@@ -1,0 +1,95 @@
+name: CI
+
+# Instala as dependências e executa o build de cada aplicação em todo push
+# para a main e em todo pull request. O resultado aparece na aba Actions e
+# como status no próprio pull request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Um novo push no mesmo PR cancela a execução anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      # A versão do Node fica só no .nvmrc da raiz (definida pelo card 1).
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # O lockfile do backend entra junto com a branch de migração para o
+      # Supabase. Enquanto ele não estiver versionado, cai no npm install.
+      - name: Instalar dependências
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      # O backend não tem etapa de build: gera o Prisma Client a partir do
+      # schema e confere a sintaxe de todos os arquivos JavaScript.
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+
+      - name: Verificar sintaxe
+        run: find src prisma -name "*.js" -print0 | xargs -0 -n1 node --check
+
+  frontend:
+    name: Frontend web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  mobile:
+    name: App mobile
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: mobile-app/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar tipos
+        run: npx tsc --noEmit
+
+      # Gera o bundle web do Expo: falha se algum import ou rota quebrar.
+      - name: Build (export web)
+        run: npx expo export --platform web
+        env:
+          CI: "1"
