@@ -200,6 +200,12 @@ Para utilizar o sistema localmente:
 
 Contribuições são bem-vindas. Para propor mudanças, crie uma branch a partir de `main`, implemente e teste suas alterações e abra um pull request descrevendo o que foi modificado.
 
+### Dependências e integração contínua
+
+- Cada aplicação tem seu `package-lock.json` versionado. Para instalar exatamente as versões registradas, use `npm ci` em vez de `npm install`. Use `npm install <pacote>` apenas quando for adicionar ou atualizar uma dependência, e commite o `package-lock.json` alterado junto.
+- A versão do Node.js usada no projeto fica no arquivo `.nvmrc` da raiz. Com o nvm, basta rodar `nvm use` na raiz.
+- O workflow `.github/workflows/ci.yml` roda em todo push para a `main` e em todo pull request. Ele instala as dependências e executa o build do backend, do frontend web e do app mobile. O resultado aparece na aba **Actions** do GitHub e como status no pull request; um pull request com o CI vermelho não deve ser mergeado.
+
 ## Licença
 
 Consulte o arquivo de licença do repositório para informações sobre uso e distribuição.
