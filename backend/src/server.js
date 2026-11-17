@@ -33,6 +33,13 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 app.use(errorHandler);
 
 const PORT = process.env.PORT ?? 3333;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+
+// Vercel imports this module as a serverless Express app; keep the listener
+// only for direct local execution (`npm start`).
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
