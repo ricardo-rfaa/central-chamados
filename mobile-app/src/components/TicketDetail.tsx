@@ -29,14 +29,16 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
   const [error, setError] = useState<string | null>(null)
 
   async function run(action: () => Promise<Ticket>) {
-    if (!token) return
+    if (!token) return false
     setBusy(true)
     setError(null)
     try {
       const updated = await action()
       onUpdate(updated)
+      return true
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Não foi possível concluir a ação.')
+      return false
     } finally {
       setBusy(false)
     }
@@ -60,12 +62,12 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
   // RF10: o cliente confirma que o problema foi resolvido, e só então o
   // chamado é fechado — ação separada de avaliar (RF11).
   function confirmClosure() {
-    run(() => confirmClosureApi(token!, ticket.id)).then(() => setShowRating(true))
+    run(() => confirmClosureApi(token!, ticket.id)).then(success => { if (success) setShowRating(true) })
   }
 
   function submitRating() {
     if (!rating || !token) return
-    run(() => rateTicket(token, ticket.id, rating, ratingComment)).then(() => setShowRating(false))
+    run(() => rateTicket(token, ticket.id, rating, ratingComment)).then(success => { if (success) setShowRating(false) })
   }
 
   const showMessageInput = ticket.status !== 'fechado' && ticket.status !== 'resolvido'
@@ -198,7 +200,7 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
 
                 {ticket.rating && (
                   <View style={styles.ratingDisplay}>
-                    <Text style={styles.sectionLabel}>Avaliação</Text>
+                    <Text style={styles.sectionLabel}>Avaliação enviada · não pode ser alterada</Text>
                     <View style={styles.starsRow}>
                       {[1, 2, 3, 4, 5].map(s => (
                         <Text key={s} style={[styles.starDisplay, s <= ticket.rating!.score && { color: colors.accent }]}>★</Text>

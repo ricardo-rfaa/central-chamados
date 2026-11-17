@@ -82,7 +82,15 @@ Copy-Item .env.example .env
 copy .env.example .env
 ```
 
-Configure no arquivo `.env` os valores necessários para o seu ambiente. Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
+O exemplo já autoriza as duas origens web usadas no desenvolvimento: Vite (`http://localhost:5173`) e Expo web (`http://localhost:8081`). Se o frontend for executado em outra origem/porta, adicione-a explicitamente à variável `CORS_ORIGIN`, separando as origens por vírgula:
+
+```env
+CORS_ORIGIN="http://localhost:5173,http://localhost:8081,http://localhost:3000"
+```
+
+Mantenha somente as origens necessárias ao seu ambiente; não use curingas nem adicione origens públicas sem necessidade. O CORS se aplica a navegadores; o aplicativo nativo não depende dessa configuração.
+
+Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
 
 ```bash
 npx prisma migrate dev --name init
@@ -191,6 +199,12 @@ Para utilizar o sistema localmente:
 ## Contribuição
 
 Contribuições são bem-vindas. Para propor mudanças, crie uma branch a partir de `main`, implemente e teste suas alterações e abra um pull request descrevendo o que foi modificado.
+
+### Dependências e integração contínua
+
+- Cada aplicação tem seu `package-lock.json` versionado. Para instalar exatamente as versões registradas, use `npm ci` em vez de `npm install`. Use `npm install <pacote>` apenas quando for adicionar ou atualizar uma dependência, e commite o `package-lock.json` alterado junto.
+- A versão do Node.js usada no projeto fica no arquivo `.nvmrc` da raiz. Com o nvm, basta rodar `nvm use` na raiz.
+- O workflow `.github/workflows/ci.yml` roda em todo push para a `main` e em todo pull request. Ele instala as dependências e executa o build do backend, do frontend web e do app mobile. O resultado aparece na aba **Actions** do GitHub e como status no pull request; um pull request com o CI vermelho não deve ser mergeado.
 
 ## Licença
 

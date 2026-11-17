@@ -1,6 +1,9 @@
 const prisma = require("../../lib/prisma");
 const { teamToDb } = require("./team.mapper");
 const { toTicketDTO, TICKET_INCLUDE } = require("./ticket.mapper");
+const { forbidden, notFound, conflict } = require("../../lib/AppError");
+
+const ALREADY_RATED = "Este chamado já foi avaliado e a avaliação não pode ser alterada.";
 
 // Mesma regra que já existia no frontend mockado (NewTicketForm em
 // App.tsx): a categoria decide prioridade, equipe e SLA por padrão.
@@ -38,16 +41,16 @@ async function getTicketById(user, ticketId) {
     where: { id: ticketId },
     include: TICKET_INCLUDE,
   });
-  if (!ticket) throw new Error("Chamado não encontrado.");
+  if (!ticket) throw notFound("Chamado não encontrado.");
   if (user.role === "client" && ticket.clientId !== user.sub) {
-    throw new Error("Você não tem acesso a este chamado.");
+    throw forbidden("Você não tem acesso a este chamado.");
   }
   return toTicketDTO(ticket);
 }
 
 async function createTicket(user, input) {
   if (user.role !== "client") {
-    throw new Error("Apenas clientes podem abrir chamados.");
+    throw forbidden("Apenas clientes podem abrir chamados.");
   }
   const priority = autoPriority(input.category);
   const ticket = await prisma.ticket.create({
@@ -71,9 +74,9 @@ async function createTicket(user, input) {
 // "assumir" oficialmente o chamado).
 async function addMessage(user, ticketId, text) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-  if (!ticket) throw new Error("Chamado não encontrado.");
+  if (!ticket) throw notFound("Chamado não encontrado.");
   if (user.role === "client" && ticket.clientId !== user.sub) {
-    throw new Error("Você não tem acesso a este chamado.");
+    throw forbidden("Você não tem acesso a este chamado.");
   }
 
   await prisma.message.create({
@@ -103,12 +106,12 @@ const AGENT_ALLOWED_TRANSITIONS = {
 };
 
 async function updateStatus(user, ticketId, status) {
-  if (user.role !== "agent") throw new Error("Apenas atendentes podem alterar o status.");
+  if (user.role !== "agent") throw forbidden("Apenas atendentes podem alterar o status.");
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-  if (!ticket) throw new Error("Chamado não encontrado.");
+  if (!ticket) throw notFound("Chamado não encontrado.");
 
   if (AGENT_ALLOWED_TRANSITIONS[ticket.status] !== status) {
-    throw new Error(`Não é possível mudar de "${ticket.status}" para "${status}".`);
+    throw conflict(`Não é possível mudar de "${ticket.status}" para "${status}".`);
   }
 
   const updated = await prisma.ticket.update({
@@ -127,12 +130,12 @@ async function updateStatus(user, ticketId, status) {
 // avaliação. É a confirmação de que o problema realmente foi resolvido.
 async function confirmClosure(user, ticketId) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-  if (!ticket) throw new Error("Chamado não encontrado.");
+  if (!ticket) throw notFound("Chamado não encontrado.");
   if (user.role !== "client" || ticket.clientId !== user.sub) {
-    throw new Error("Você não tem acesso a este chamado.");
+    throw forbidden("Você não tem acesso a este chamado.");
   }
   if (ticket.status !== "resolvido") {
-    throw new Error("Só é possível confirmar o fechamento de um chamado resolvido.");
+    throw conflict("Só é possível confirmar o fechamento de um chamado resolvido.");
   }
 
   const updated = await prisma.ticket.update({
@@ -148,19 +151,29 @@ async function confirmClosure(user, ticketId) {
 // confirmClosure). Pode ser enviada uma única vez.
 async function rateTicket(user, ticketId, score, comment) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-  if (!ticket) throw new Error("Chamado não encontrado.");
+  if (!ticket) throw notFound("Chamado não encontrado.");
   if (user.role !== "client" || ticket.clientId !== user.sub) {
-    throw new Error("Você não tem acesso a este chamado.");
+    throw forbidden("Você não tem acesso a este chamado.");
   }
   if (ticket.status !== "fechado") {
-    throw new Error("Só é possível avaliar um chamado fechado.");
+    throw conflict("Só é possível avaliar um chamado fechado.");
   }
 
-  await prisma.rating.upsert({
-    where: { ticketId },
-    create: { ticketId, score, comment },
-    update: { score, comment },
-  });
+  // RF11: uma avaliação é definitiva. Não sobrescreva uma avaliação
+  // existente; a constraint única de ticketId também protege contra
+  // duas requisições simultâneas tentando avaliar o mesmo chamado.
+  const existingRating = await prisma.rating.findUnique({ where: { ticketId } });
+  if (existingRating) throw conflict(ALREADY_RATED);
+
+  try {
+    await prisma.rating.create({
+      data: { ticketId, score, comment },
+    });
+  } catch (error) {
+    // Trata a corrida entre duas requisições: somente uma pode criar.
+    if (error.code === "P2002") throw conflict(ALREADY_RATED);
+    throw error;
+  }
 
   const updated = await prisma.ticket.findUnique({
     where: { id: ticketId },

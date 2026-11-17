@@ -3,18 +3,19 @@ const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./modules/auth/auth.routes");
 const ticketRoutes = require("./modules/tickets/ticket.routes");
+const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
-// Libera múltiplas origens de desenvolvimento: o front Vite (5173) e o
-// Expo web (8081, porta padrão do Metro). Requisições nativas (Expo Go
-// no celular/emulador) não passam por CORS — isso só afeta quem chama
-// a partir de um navegador. CORS_ORIGIN no .env pode sobrescrever com
-// uma lista separada por vírgula, se precisar de outra porta/host.
+// Libera apenas as origens web locais configuradas: Vite (5173) e
+// Expo web (8081). Requisições nativas não passam por CORS.
+// Para adicionar outra origem, informe-a em CORS_ORIGIN, separada por vírgula.
 const defaultOrigins = ["http://localhost:5173", "http://localhost:8081"];
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
-  : defaultOrigins;
+const configuredOrigins = process.env.CORS_ORIGIN
+  ?.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = configuredOrigins?.length ? configuredOrigins : defaultOrigins;
 
 app.use(
   cors({
@@ -27,6 +28,9 @@ app.use("/", authRoutes);
 app.use("/tickets", ticketRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
+
+// Precisa vir depois de todas as rotas.
+app.use(errorHandler);
 
 const PORT = process.env.PORT ?? 3333;
 
