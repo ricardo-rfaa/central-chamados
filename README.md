@@ -36,7 +36,7 @@ central-chamados/
 
 Antes de começar, instale:
 
-- Node.js 18 ou mais recente
+- Node.js 26 (versão definida no `.nvmrc`)
 - npm
 - Expo Go, caso queira testar em um dispositivo físico
 
