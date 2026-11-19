@@ -11,6 +11,9 @@ const steps: { key: Status; label: string }[] = [
 const order: Record<string, number> = { novo: 0, em_atendimento: 1, resolvido: 2, fechado: 3 }
 
 export function LifecycleTrack({ status }: { status: Status }) {
+  if (status === 'cancelado') {
+    return <Text style={{ color: colors.dangerText, fontSize: 12 }}>Chamado cancelado</Text>
+  }
   const current = order[status] ?? 0
 
   return (

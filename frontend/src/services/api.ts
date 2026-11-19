@@ -56,4 +56,9 @@ export const api = {
       method: 'GET',
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     }),
+  delete: <T>(path: string, token?: string | null) =>
+    request<T>(path, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    }),
 }
