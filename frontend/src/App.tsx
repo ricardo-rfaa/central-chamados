@@ -46,12 +46,6 @@ export default function App() {
     setSelected(t)
   }
 
-  function removeTicket(ticketId: string) {
-    setTickets(ts => ts.filter(t => t.id !== ticketId))
-    setSelected(null)
-    setView('dashboard')
-  }
-
   function addTicket(t: Ticket) {
     setTickets(ts => [t, ...ts])
     setShowForm(false)
@@ -70,7 +64,7 @@ export default function App() {
   })
 
   const isMobile = useIsMobile()
-  const urgent = tickets.filter(t => t.priority === 'urgente' && t.status !== 'fechado' && t.status !== 'cancelado').length
+  const urgent = tickets.filter(t => t.priority === 'urgente' && t.status !== 'fechado').length
   const open = tickets.filter(t => t.status === 'novo').length
   const inProgress = tickets.filter(t => t.status === 'em_atendimento').length
   const resolved = tickets.filter(t => ['resolvido', 'fechado'].includes(t.status)).length
@@ -81,7 +75,6 @@ export default function App() {
     { key: 'em_atendimento', label: 'Em Atendimento' },
     { key: 'resolvido', label: 'Resolvidos' },
     { key: 'fechado', label: 'Fechados' },
-    { key: 'cancelado', label: 'Cancelados' },
   ]
 
   if (view === 'detail' && selected) {
@@ -90,7 +83,7 @@ export default function App() {
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0d1117' }}>
         <TopBar onNew={() => setShowForm(true)} onHome={() => setView('dashboard')} onNewAgent={() => setShowRegisterAgent(true)} />
         <div style={{ flex: 1, overflow: isMobile ? 'auto' : 'hidden' }}>
-          <TicketDetail ticket={fresh} onBack={() => setView('dashboard')} onUpdate={updateTicket} onDelete={() => removeTicket(fresh.id)} />
+          <TicketDetail ticket={fresh} onBack={() => setView('dashboard')} onUpdate={updateTicket} />
         </div>
         {showForm && <NewTicketForm onClose={() => setShowForm(false)} onCreated={addTicket} />}
         {showRegisterAgent && <RegisterAgentModal onClose={() => setShowRegisterAgent(false)} />}

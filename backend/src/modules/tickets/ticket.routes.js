@@ -14,7 +14,6 @@ router.get("/:id", ticketController.getById);
 router.post("/", ticketController.create);
 router.post("/:id/messages", ticketController.addMessage);
 router.patch("/:id/status", ticketController.updateStatus);
-router.delete("/:id", ticketController.remove);
 router.post("/:id/close", ticketController.confirmClosure);
 router.post("/:id/rating", ticketController.rate);
 

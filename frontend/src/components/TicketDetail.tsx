@@ -3,14 +3,14 @@ import type { Ticket, Status } from '../data'
 import { CATEGORY_LABELS } from '../data'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
-import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, rateTicket, deleteTicket as deleteTicketApi } from '../services/ticketService'
+import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, rateTicket } from '../services/ticketService'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { fmtDate } from '../lib/ticketFormatting'
 import { inputStyle, btnStyle } from '../lib/styles'
 import { StatusBadge, PriorityBadge } from './Badge'
 import { InfoSection, InfoRow } from './InfoSection'
 
-export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: Ticket; onBack: () => void; onUpdate: (t: Ticket) => void; onDelete: () => void }) {
+export function TicketDetail({ ticket, onBack, onUpdate }: { ticket: Ticket; onBack: () => void; onUpdate: (t: Ticket) => void }) {
   const isMobile = useIsMobile()
   const { token, user } = useAuth()
   const isAgent = user?.role === 'agent'
@@ -53,24 +53,6 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
 
   function resolveTicket() {
     run(() => updateStatusApi(token!, ticket.id, 'resolvido'))
-  }
-
-  function cancelTicket() {
-    run(() => updateStatusApi(token!, ticket.id, 'cancelado'))
-  }
-
-  async function deleteTicket() {
-    if (!token || !window.confirm('Excluir permanentemente este chamado do histórico? Esta ação não pode ser desfeita.')) return
-    setBusy(true)
-    setError(null)
-    try {
-      await deleteTicketApi(token, ticket.id)
-      onDelete()
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Não foi possível excluir o chamado.')
-    } finally {
-      setBusy(false)
-    }
   }
 
   // RF10: o cliente confirma que o problema foi resolvido, e só então o
@@ -154,7 +136,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
           )}
 
           {/* fallback de erro para quando não há input de mensagem visível (ex: chamado já fechado) */}
-          {error && (ticket.status === 'fechado' || ticket.status === 'resolvido' || ticket.status === 'cancelado') && (
+          {error && (ticket.status === 'fechado' || ticket.status === 'resolvido') && (
             <div style={{ margin: isMobile ? '0 14px 14px' : '0 24px 24px', padding: '8px 10px', borderRadius: 4, background: '#2d1212', border: '1px solid #da3633', color: '#ff7b72', fontSize: 12.5 }}>
               {error}
             </div>
@@ -190,7 +172,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
               <div style={{ padding: 14, paddingBottom: 32 }}>
                 <TicketSidebarContent
                   ticket={ticket} isAgent={isAgent} busy={busy}
-                  assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
+                  assumeTicket={assumeTicket} resolveTicket={resolveTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
                 />
               </div>
             )}
@@ -206,7 +188,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
             </button>
             <TicketSidebarContent
               ticket={ticket} isAgent={isAgent} busy={busy}
-              assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
+              assumeTicket={assumeTicket} resolveTicket={resolveTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
             />
           </div>
         ) : (
@@ -225,14 +207,12 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
 
 // Conteúdo da aba de detalhes, extraído para ser reaproveitado tanto no
 // layout desktop (coluna lateral) quanto no mobile (gaveta abaixo do chat).
-function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTicket, cancelTicket, deleteTicket, confirmClosure, setShowRating }: {
+function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTicket, confirmClosure, setShowRating }: {
   ticket: Ticket
   isAgent: boolean
   busy: boolean
   assumeTicket: () => void
   resolveTicket: () => void
-  cancelTicket: () => void
-  deleteTicket: () => void
   confirmClosure: () => void
   setShowRating: (v: boolean) => void
 }) {
@@ -262,16 +242,6 @@ function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTick
             {isAgent && ticket.status === 'em_atendimento' && (
               <button onClick={resolveTicket} disabled={busy} style={{ ...btnStyle, background: '#238636', color: '#fff', border: 'none', textAlign: 'left', fontSize: 12 }}>
                 ✓ Marcar como Resolvido
-              </button>
-            )}
-            {isAgent && ticket.status !== 'fechado' && ticket.status !== 'cancelado' && (
-              <button onClick={cancelTicket} disabled={busy} style={{ ...btnStyle, background: '#2d1212', color: '#ff7b72', border: '1px solid #da3633', textAlign: 'left', fontSize: 12 }}>
-                × Cancelar Chamado
-              </button>
-            )}
-            {isAgent && (
-              <button onClick={deleteTicket} disabled={busy} style={{ ...btnStyle, background: 'transparent', color: '#ff7b72', border: '1px solid #da3633', textAlign: 'left', fontSize: 12 }}>
-                Excluir do Histórico
               </button>
             )}
             {/* RF10: cliente confirma que o problema foi resolvido antes do chamado fechar */}
@@ -319,9 +289,6 @@ function LifecycleTrack({ status }: { status: Status }) {
     { key: 'resolvido', label: 'Resolução' },
     { key: 'fechado', label: 'Fechamento' },
   ]
-  if (status === 'cancelado') {
-    return <span style={{ fontSize: 12, color: '#ff7b72' }}>Chamado cancelado</span>
-  }
   const order: Record<string, number> = { novo: 0, em_atendimento: 1, resolvido: 2, fechado: 3 }
   const current = order[status] ?? 0
 

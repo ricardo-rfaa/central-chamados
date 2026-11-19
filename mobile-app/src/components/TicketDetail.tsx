@@ -70,7 +70,7 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
     run(() => rateTicket(token, ticket.id, rating, ratingComment)).then(success => { if (success) setShowRating(false) })
   }
 
-  const showMessageInput = ticket.status !== 'fechado' && ticket.status !== 'resolvido' && ticket.status !== 'cancelado'
+  const showMessageInput = ticket.status !== 'fechado' && ticket.status !== 'resolvido'
   const showActionsSection = isAgent || (!isAgent && (ticket.status === 'resolvido' || (ticket.status === 'fechado' && !ticket.rating)))
 
   return (

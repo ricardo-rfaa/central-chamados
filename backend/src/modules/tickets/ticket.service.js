@@ -75,7 +75,6 @@ async function createTicket(user, input) {
 async function addMessage(user, ticketId, text) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
   if (!ticket) throw notFound("Chamado não encontrado.");
-  if (ticket.status === "cancelado") throw conflict("Não é possível enviar mensagens em um chamado cancelado.");
   if (user.role === "client" && ticket.clientId !== user.sub) {
     throw forbidden("Você não tem acesso a este chamado.");
   }
@@ -111,11 +110,7 @@ async function updateStatus(user, ticketId, status) {
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
   if (!ticket) throw notFound("Chamado não encontrado.");
 
-  if (status === "cancelado") {
-    if (ticket.status === "fechado" || ticket.status === "cancelado") {
-      throw conflict(`Não é possível cancelar um chamado com status "${ticket.status}".`);
-    }
-  } else if (AGENT_ALLOWED_TRANSITIONS[ticket.status] !== status) {
+  if (AGENT_ALLOWED_TRANSITIONS[ticket.status] !== status) {
     throw conflict(`Não é possível mudar de "${ticket.status}" para "${status}".`);
   }
 
@@ -128,13 +123,6 @@ async function updateStatus(user, ticketId, status) {
     include: TICKET_INCLUDE,
   });
   return toTicketDTO(updated);
-}
-
-async function deleteTicket(user, ticketId) {
-  if (user.role !== "agent") throw forbidden("Apenas atendentes podem excluir chamados.");
-  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
-  if (!ticket) throw notFound("Chamado não encontrado.");
-  await prisma.ticket.delete({ where: { id: ticketId } });
 }
 
 // RF10: o fechamento é uma ação do cliente, feita depois que o técnico
@@ -194,4 +182,4 @@ async function rateTicket(user, ticketId, score, comment) {
   return toTicketDTO(updated);
 }
 
-module.exports = { listTickets, getTicketById, createTicket, addMessage, updateStatus, deleteTicket, confirmClosure, rateTicket };
+module.exports = { listTickets, getTicketById, createTicket, addMessage, updateStatus, confirmClosure, rateTicket };

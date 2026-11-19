@@ -27,7 +27,6 @@ enum TicketStatus {
   em_atendimento
   resolvido
   fechado
-  cancelado
 }
 
 enum Category {

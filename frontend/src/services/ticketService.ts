@@ -27,10 +27,6 @@ export function updateStatus(token: string, ticketId: string, status: Ticket['st
   return api.patch<Ticket>(`/tickets/${ticketId}/status`, { status }, token)
 }
 
-export function deleteTicket(token: string, ticketId: string) {
-  return api.delete<void>(`/tickets/${ticketId}`, token)
-}
-
 // RF10: confirmação de fechamento pelo cliente, separada da avaliação.
 export function confirmClosure(token: string, ticketId: string) {
   return api.post<Ticket>(`/tickets/${ticketId}/close`, {}, token)

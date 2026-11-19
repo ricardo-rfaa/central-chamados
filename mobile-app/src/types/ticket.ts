@@ -2,7 +2,7 @@
 // backend não muda — são os mesmos campos, os mesmos nomes de enum.
 export type Priority = 'baixa' | 'media' | 'alta' | 'urgente'
 export type Category = 'hardware' | 'software' | 'rede' | 'acesso' | 'outro'
-export type Status = 'novo' | 'em_atendimento' | 'resolvido' | 'fechado' | 'cancelado'
+export type Status = 'novo' | 'em_atendimento' | 'resolvido' | 'fechado'
 export type Team = 'Infraestrutura' | 'Suporte N1' | 'Suporte N2' | 'Segurança' | 'Redes'
 
 export interface Message {
@@ -48,7 +48,6 @@ export const STATUS_LABELS: Record<Status, string> = {
   em_atendimento: 'Em Atendimento',
   resolvido: 'Resolvido',
   fechado: 'Fechado',
-  cancelado: 'Cancelado',
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {

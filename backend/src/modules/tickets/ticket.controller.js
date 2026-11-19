@@ -3,7 +3,7 @@ const asyncHandler = require("../../lib/asyncHandler");
 const { badRequest } = require("../../lib/AppError");
 
 const VALID_CATEGORIES = ["hardware", "software", "rede", "acesso", "outro"];
-const VALID_STATUSES = ["novo", "em_atendimento", "resolvido", "fechado", "cancelado"];
+const VALID_STATUSES = ["novo", "em_atendimento", "resolvido", "fechado"];
 
 // Os status de erro (404, 403, 409...) vêm do próprio service via AppError;
 // o controller só valida a entrada e devolve o resultado.
@@ -47,11 +47,6 @@ const updateStatus = asyncHandler(async (req, res) => {
   res.status(200).json(ticket);
 });
 
-const remove = asyncHandler(async (req, res) => {
-  await ticketService.deleteTicket(req.user, req.params.id);
-  res.status(204).end();
-});
-
 // RF10: cliente confirma o fechamento do chamado, separado da avaliação.
 const confirmClosure = asyncHandler(async (req, res) => {
   const ticket = await ticketService.confirmClosure(req.user, req.params.id);
@@ -69,4 +64,4 @@ const rate = asyncHandler(async (req, res) => {
   res.status(200).json(ticket);
 });
 
-module.exports = { list, getById, create, addMessage, updateStatus, remove, confirmClosure, rate };
+module.exports = { list, getById, create, addMessage, updateStatus, confirmClosure, rate };

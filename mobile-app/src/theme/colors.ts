@@ -34,5 +34,4 @@ export const statusColors = {
   em_atendimento: { bg: '#2d2200', text: '#d29922', dot: '#d29922' },
   resolvido: { bg: '#161b22', text: '#8b949e', dot: '#3fb950' },
   fechado: { bg: '#161b22', text: '#6e7681', dot: '#6e7681' },
-  cancelado: { bg: '#2d1212', text: '#ff7b72', dot: '#da3633' },
 } as const
