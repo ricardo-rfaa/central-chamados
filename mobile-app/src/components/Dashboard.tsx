@@ -53,7 +53,7 @@ export function Dashboard() {
     return true
   })
 
-  const urgent = tickets.filter(t => t.priority === 'urgente' && t.status !== 'fechado').length
+  const urgent = tickets.filter(t => t.priority === 'urgente' && t.status !== 'fechado' && t.status !== 'cancelado').length
   const open = tickets.filter(t => t.status === 'novo').length
   const inProgress = tickets.filter(t => t.status === 'em_atendimento').length
   const resolved = tickets.filter(t => ['resolvido', 'fechado'].includes(t.status)).length
