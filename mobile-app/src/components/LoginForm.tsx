@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView, useWindowDimensions } from 'react-native'
 import { ApiError } from '../services/api'
 import { colors } from '../theme/colors'
 
@@ -19,6 +19,7 @@ interface LoginFormProps {
 // <input> por View/TextInput. KeyboardAvoidingView é o equivalente RN
 // para o teclado não cobrir os campos — não existe problema análogo na web.
 export function LoginForm({ title, subtitle, accent, onSubmit, switchLabel, onSwitch, extraLinkLabel, onExtraLink }: LoginFormProps) {
+  const { width, height } = useWindowDimensions()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -41,60 +42,65 @@ export function LoginForm({ title, subtitle, accent, onSubmit, switchLabel, onSw
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.card}>
-        <View style={styles.header}>
-          <Text style={[styles.eyebrow, { color: accent }]}>CENTRAL DE CHAMADOS</Text>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-        </View>
-
-        <Text style={styles.label}>E-mail</Text>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="seu@email.com"
-          placeholderTextColor={colors.textFaint}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          autoFocus
-          style={styles.input}
-        />
-
-        <Text style={[styles.label, { marginTop: 14 }]}>Senha</Text>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="••••••••"
-          placeholderTextColor={colors.textFaint}
-          secureTextEntry
-          style={styles.input}
-        />
-
-        {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={[styles.card, width > height && styles.cardLandscape]}>
+          <View style={styles.header}>
+            <Text style={[styles.eyebrow, { color: accent }]}>CENTRAL DE CHAMADOS</Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.subtitle}>{subtitle}</Text>
           </View>
-        )}
 
-        <TouchableOpacity
-          onPress={handleSubmit}
-          disabled={loading}
-          style={[styles.primaryButton, { backgroundColor: loading ? colors.border : accent }]}
-        >
-          {loading ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.primaryButtonText}>Entrar</Text>}
-        </TouchableOpacity>
+          <Text style={styles.label}>E-mail</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="seu@email.com"
+            placeholderTextColor={colors.textFaint}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoFocus
+            style={styles.input}
+          />
 
-        <TouchableOpacity onPress={onSwitch} style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>{switchLabel}</Text>
-        </TouchableOpacity>
+          <Text style={[styles.label, { marginTop: 14 }]}>Senha</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="••••••••"
+            placeholderTextColor={colors.textFaint}
+            secureTextEntry
+            style={styles.input}
+          />
 
-        {extraLinkLabel && onExtraLink && (
-          <TouchableOpacity onPress={onExtraLink} style={styles.linkButton}>
-            <Text style={[styles.linkButtonText, { color: accent }]}>{extraLinkLabel}</Text>
+          {error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={loading}
+            style={[styles.primaryButton, { backgroundColor: loading ? colors.border : accent }]}
+          >
+            {loading ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.primaryButtonText}>Entrar</Text>}
           </TouchableOpacity>
-        )}
-      </View>
+
+          <TouchableOpacity onPress={onSwitch} style={styles.secondaryButton}>
+            <Text style={styles.secondaryButtonText}>{switchLabel}</Text>
+          </TouchableOpacity>
+
+          {extraLinkLabel && onExtraLink && (
+            <TouchableOpacity onPress={onExtraLink} style={styles.linkButton}>
+              <Text style={[styles.linkButtonText, { color: accent }]}>{extraLinkLabel}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   )
 }
@@ -102,10 +108,14 @@ export function LoginForm({ title, subtitle, accent, onSubmit, switchLabel, onSw
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
     paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   card: {
     width: '100%',
@@ -116,6 +126,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 28,
   },
+  cardLandscape: { maxWidth: 480 },
   header: { marginBottom: 20 },
   eyebrow: { fontSize: 11, letterSpacing: 0.5, marginBottom: 4, fontWeight: '500' },
   title: { fontSize: 20, color: colors.text, fontWeight: '600' },

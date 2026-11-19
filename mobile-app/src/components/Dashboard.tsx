@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator, useWindowDimensions } from 'react-native'
 import { useRouter } from 'expo-router'
 import type { Ticket, Priority, Status } from '../types/ticket'
 import { useAuth } from '../context/AuthContext'
@@ -23,6 +23,9 @@ const statusFilters: { key: FilterStatus; label: string }[] = [
 // Portado de App.tsx da versão web (dashboard único, sem separação
 // cliente/atendente ainda — ponto de partida combinado para a migração).
 export function Dashboard() {
+  const { width, height } = useWindowDimensions()
+  const landscape = width > height && width >= 620
+  const columns = width >= 760 ? 2 : 1
   const { token } = useAuth()
   const router = useRouter()
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -64,11 +67,18 @@ export function Dashboard() {
       <TopBar onNewTicket={() => router.push('/novo-chamado')} onNewAgent={() => router.push('/cadastro-atendente')} />
 
       <FlatList
+        key={`tickets-${columns}`}
         data={filtered}
         keyExtractor={t => t.id}
-        renderItem={({ item }) => <TicketCard ticket={item} onPress={() => openTicket(item)} />}
+        renderItem={({ item }) => (
+          <View style={columns > 1 ? styles.ticketCell : undefined}>
+            <TicketCard ticket={item} onPress={() => openTicket(item)} />
+          </View>
+        )}
+        numColumns={columns}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        columnWrapperStyle={columns > 1 ? styles.ticketRow : undefined}
+        ItemSeparatorComponent={() => <View style={{ height: 8, width: columns > 1 ? 8 : undefined }} />}
         ListHeaderComponent={
           <View>
             {loading && <ActivityIndicator color={colors.textMuted} style={{ marginVertical: 16 }} />}
@@ -78,14 +88,25 @@ export function Dashboard() {
               </View>
             )}
 
-            <View style={styles.statsGrid}>
-              <StatCard label="Urgentes" value={urgent} sub="Atenção imediata" accent={urgent > 0 ? colors.dangerText : undefined} />
-              <StatCard label="Abertos" value={open} sub="Aguard. atribuição" />
-            </View>
-            <View style={styles.statsGrid}>
-              <StatCard label="Atendimento" value={inProgress} sub="Com técnico" accent="#d29922" />
-              <StatCard label="Resolvidos" value={resolved} sub="Encerrados" accent={colors.successText} />
-            </View>
+            {landscape ? (
+              <View style={[styles.statsGrid, styles.statsGridLandscape]}>
+                <StatCard label="Urgentes" value={urgent} sub="Atenção imediata" accent={urgent > 0 ? colors.dangerText : undefined} />
+                <StatCard label="Abertos" value={open} sub="Aguard. atribuição" />
+                <StatCard label="Atendimento" value={inProgress} sub="Com técnico" accent="#d29922" />
+                <StatCard label="Resolvidos" value={resolved} sub="Encerrados" accent={colors.successText} />
+              </View>
+            ) : (
+              <>
+                <View style={styles.statsGrid}>
+                  <StatCard label="Urgentes" value={urgent} sub="Atenção imediata" accent={urgent > 0 ? colors.dangerText : undefined} />
+                  <StatCard label="Abertos" value={open} sub="Aguard. atribuição" />
+                </View>
+                <View style={styles.statsGrid}>
+                  <StatCard label="Atendimento" value={inProgress} sub="Com técnico" accent="#d29922" />
+                  <StatCard label="Resolvidos" value={resolved} sub="Encerrados" accent={colors.successText} />
+                </View>
+              </>
+            )}
 
             <TextInput
               value={search}
@@ -128,7 +149,10 @@ export function Dashboard() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   listContent: { padding: 14, paddingTop: 16 },
-  statsGrid: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  statsGridLandscape: { flexWrap: 'nowrap' },
+  ticketRow: { gap: 8 },
+  ticketCell: { flex: 1 },
   errorBox: { padding: 10, borderRadius: 4, backgroundColor: colors.dangerBg, borderWidth: 1, borderColor: colors.danger, marginBottom: 12 },
   errorText: { color: colors.dangerText, fontSize: 12.5 },
   searchInput: {
