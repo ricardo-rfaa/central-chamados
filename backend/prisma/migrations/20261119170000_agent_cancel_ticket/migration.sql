@@ -1,1 +1,1 @@
-ALTER TYPE "TicketStatus" ADD VALUE 'cancelado';
+ALTER TYPE "TicketStatus" ADD VALUE IF NOT EXISTS 'cancelado';
