@@ -56,7 +56,8 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
   }
 
   function cancelTicket() {
-    run(() => updateStatusApi(token!, ticket.id, 'cancelado'))
+    if (!token || !window.confirm('Tem certeza de que deseja cancelar este chamado? Esta ação não pode ser desfeita.')) return
+    run(() => updateStatusApi(token, ticket.id, 'cancelado'))
   }
 
   async function deleteTicket() {
