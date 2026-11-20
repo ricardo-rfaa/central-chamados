@@ -192,8 +192,8 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
                           <TouchableOpacity onPress={confirmClosure} disabled={busy} style={styles.actionButtonSuccess}>
                             <Text style={styles.actionButtonSuccessText}>✓ Confirmar Resolução e Fechar</Text>
                           </TouchableOpacity>
-                          <TouchableOpacity onPress={reopenTicket} disabled={busy} style={styles.actionButtonSecondary}>
-                            <Text style={styles.actionButtonSecondaryText}>↻ Recusar Resolução e Reabrir</Text>
+                          <TouchableOpacity onPress={reopenTicket} disabled={busy} style={styles.actionButtonPrimary}>
+                            <Text style={styles.actionButtonPrimaryText}>↻ Recusar Resolução e Reabrir</Text>
                           </TouchableOpacity>
                         </>
                       )}

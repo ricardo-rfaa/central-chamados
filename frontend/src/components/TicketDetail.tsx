@@ -286,7 +286,7 @@ function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTick
                 <button onClick={confirmClosure} disabled={busy} style={{ ...btnStyle, background: '#238636', color: '#fff', border: 'none', textAlign: 'left', fontSize: 12 }}>
                   ✓ Confirmar Resolução e Fechar
                 </button>
-                <button onClick={reopenTicket} disabled={busy} style={{ ...btnStyle, background: '#21262d', color: '#e6edf3', border: '1px solid #30363d', textAlign: 'left', fontSize: 12 }}>
+                <button onClick={reopenTicket} disabled={busy} style={{ ...btnStyle, background: '#f0a84a', color: '#0d1117', fontWeight: 600, border: 'none', textAlign: 'left', fontSize: 12 }}>
                   ↻ Recusar Resolução e Reabrir
                 </button>
               </>
