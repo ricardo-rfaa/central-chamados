@@ -32,6 +32,10 @@ export function confirmClosure(token: string, ticketId: string) {
   return api.post<Ticket>(`/tickets/${ticketId}/close`, {}, token)
 }
 
+export function reopenTicket(token: string, ticketId: string) {
+  return api.post<Ticket>(`/tickets/${ticketId}/reopen`, {}, token)
+}
+
 export function rateTicket(token: string, ticketId: string, score: number, comment: string) {
   return api.post<Ticket>(`/tickets/${ticketId}/rating`, { score, comment }, token)
 }

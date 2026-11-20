@@ -5,7 +5,7 @@ import type { Ticket } from '../types/ticket'
 import { CATEGORY_LABELS } from '../types/ticket'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
-import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, rateTicket } from '../services/ticketService'
+import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, reopenTicket as reopenTicketApi, rateTicket } from '../services/ticketService'
 import { fmtDate } from '../lib/ticketFormatting'
 import { colors } from '../theme/colors'
 import { StatusBadge, PriorityBadge } from './Badge'
@@ -63,6 +63,10 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
   // chamado é fechado — ação separada de avaliar (RF11).
   function confirmClosure() {
     run(() => confirmClosureApi(token!, ticket.id)).then(success => { if (success) setShowRating(true) })
+  }
+
+  function reopenTicket() {
+    run(() => reopenTicketApi(token!, ticket.id))
   }
 
   function submitRating() {
@@ -184,9 +188,14 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
                       )}
                       {/* RF10 */}
                       {!isAgent && ticket.status === 'resolvido' && (
-                        <TouchableOpacity onPress={confirmClosure} disabled={busy} style={styles.actionButtonSuccess}>
-                          <Text style={styles.actionButtonSuccessText}>✓ Confirmar Resolução e Fechar</Text>
-                        </TouchableOpacity>
+                        <>
+                          <TouchableOpacity onPress={confirmClosure} disabled={busy} style={styles.actionButtonSuccess}>
+                            <Text style={styles.actionButtonSuccessText}>✓ Confirmar Resolução e Fechar</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={reopenTicket} disabled={busy} style={styles.actionButtonSecondary}>
+                            <Text style={styles.actionButtonSecondaryText}>↻ Recusar Resolução e Reabrir</Text>
+                          </TouchableOpacity>
+                        </>
                       )}
                       {/* RF11 */}
                       {!isAgent && ticket.status === 'fechado' && !ticket.rating && (
@@ -283,6 +292,8 @@ const styles = StyleSheet.create({
   actionButtonPrimaryText: { color: colors.accentText, fontWeight: '600', fontSize: 12 },
   actionButtonSuccess: { backgroundColor: colors.success, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 4 },
   actionButtonSuccessText: { color: '#fff', fontSize: 12 },
+  actionButtonSecondary: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 4 },
+  actionButtonSecondaryText: { color: colors.text, fontSize: 12 },
   actionButtonInfo: { backgroundColor: colors.info, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 4 },
   actionButtonInfoText: { color: '#fff', fontSize: 12 },
   ratingDisplay: { marginTop: 24, padding: 16, backgroundColor: colors.background, borderRadius: 4, borderWidth: 1, borderColor: colors.border },

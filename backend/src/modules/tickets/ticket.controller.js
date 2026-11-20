@@ -58,6 +58,11 @@ const confirmClosure = asyncHandler(async (req, res) => {
   res.status(200).json(ticket);
 });
 
+const reopen = asyncHandler(async (req, res) => {
+  const ticket = await ticketService.reopenTicket(req.user, req.params.id);
+  res.status(200).json(ticket);
+});
+
 // RF11: avaliação de 1 a 5, disponível só depois do fechamento (RF10).
 const rate = asyncHandler(async (req, res) => {
   const { score, comment } = req.body;
@@ -69,4 +74,4 @@ const rate = asyncHandler(async (req, res) => {
   res.status(200).json(ticket);
 });
 
-module.exports = { list, getById, create, addMessage, updateStatus, remove, confirmClosure, rate };
+module.exports = { list, getById, create, addMessage, updateStatus, remove, confirmClosure, reopen, rate };

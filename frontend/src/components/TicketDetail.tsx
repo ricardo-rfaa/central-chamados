@@ -3,7 +3,7 @@ import type { Ticket, Status } from '../data'
 import { CATEGORY_LABELS } from '../data'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
-import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, rateTicket, deleteTicket as deleteTicketApi } from '../services/ticketService'
+import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, reopenTicket as reopenTicketApi, rateTicket, deleteTicket as deleteTicketApi } from '../services/ticketService'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { fmtDate } from '../lib/ticketFormatting'
 import { inputStyle, btnStyle } from '../lib/styles'
@@ -78,6 +78,10 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
   // chamado é fechado — ação separada de avaliar (RF11).
   function confirmClosure() {
     run(() => confirmClosureApi(token!, ticket.id)).then(success => { if (success) setShowRating(true) })
+  }
+
+  function reopenTicket() {
+    run(() => reopenTicketApi(token!, ticket.id))
   }
 
   function submitRating() {
@@ -191,7 +195,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
               <div style={{ padding: 14, paddingBottom: 32 }}>
                 <TicketSidebarContent
                   ticket={ticket} isAgent={isAgent} busy={busy}
-                  assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
+                  assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} reopenTicket={reopenTicket} setShowRating={setShowRating}
                 />
               </div>
             )}
@@ -207,7 +211,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
             </button>
             <TicketSidebarContent
               ticket={ticket} isAgent={isAgent} busy={busy}
-              assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} setShowRating={setShowRating}
+              assumeTicket={assumeTicket} resolveTicket={resolveTicket} cancelTicket={cancelTicket} deleteTicket={deleteTicket} confirmClosure={confirmClosure} reopenTicket={reopenTicket} setShowRating={setShowRating}
             />
           </div>
         ) : (
@@ -226,7 +230,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
 
 // Conteúdo da aba de detalhes, extraído para ser reaproveitado tanto no
 // layout desktop (coluna lateral) quanto no mobile (gaveta abaixo do chat).
-function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTicket, cancelTicket, deleteTicket, confirmClosure, setShowRating }: {
+function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTicket, cancelTicket, deleteTicket, confirmClosure, reopenTicket, setShowRating }: {
   ticket: Ticket
   isAgent: boolean
   busy: boolean
@@ -235,6 +239,7 @@ function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTick
   cancelTicket: () => void
   deleteTicket: () => void
   confirmClosure: () => void
+  reopenTicket: () => void
   setShowRating: (v: boolean) => void
 }) {
   return (
@@ -277,9 +282,14 @@ function TicketSidebarContent({ ticket, isAgent, busy, assumeTicket, resolveTick
             )}
             {/* RF10: cliente confirma que o problema foi resolvido antes do chamado fechar */}
             {!isAgent && ticket.status === 'resolvido' && (
-              <button onClick={confirmClosure} disabled={busy} style={{ ...btnStyle, background: '#238636', color: '#fff', border: 'none', textAlign: 'left', fontSize: 12 }}>
-                ✓ Confirmar Resolução e Fechar
-              </button>
+              <>
+                <button onClick={confirmClosure} disabled={busy} style={{ ...btnStyle, background: '#238636', color: '#fff', border: 'none', textAlign: 'left', fontSize: 12 }}>
+                  ✓ Confirmar Resolução e Fechar
+                </button>
+                <button onClick={reopenTicket} disabled={busy} style={{ ...btnStyle, background: '#21262d', color: '#e6edf3', border: '1px solid #30363d', textAlign: 'left', fontSize: 12 }}>
+                  ↻ Recusar Resolução e Reabrir
+                </button>
+              </>
             )}
             {/* RF11: avaliação só aparece depois do chamado já fechado */}
             {!isAgent && ticket.status === 'fechado' && !ticket.rating && (

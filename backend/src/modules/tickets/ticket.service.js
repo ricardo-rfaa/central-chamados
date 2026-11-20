@@ -158,6 +158,24 @@ async function confirmClosure(user, ticketId) {
   return toTicketDTO(updated);
 }
 
+async function reopenTicket(user, ticketId) {
+  const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+  if (!ticket) throw notFound("Chamado não encontrado.");
+  if (user.role !== "client" || ticket.clientId !== user.sub) {
+    throw forbidden("Você não tem acesso a este chamado.");
+  }
+  if (ticket.status !== "resolvido") {
+    throw conflict("Só é possível reabrir um chamado resolvido.");
+  }
+
+  const updated = await prisma.ticket.update({
+    where: { id: ticketId },
+    data: { status: "em_atendimento", closedAt: null },
+    include: TICKET_INCLUDE,
+  });
+  return toTicketDTO(updated);
+}
+
 // RF11: avaliação é solicitada depois do fechamento, e é independente
 // dele — não muda mais o status do chamado (isso já aconteceu no
 // confirmClosure). Pode ser enviada uma única vez.
@@ -194,4 +212,4 @@ async function rateTicket(user, ticketId, score, comment) {
   return toTicketDTO(updated);
 }
 
-module.exports = { listTickets, getTicketById, createTicket, addMessage, updateStatus, deleteTicket, confirmClosure, rateTicket };
+module.exports = { listTickets, getTicketById, createTicket, addMessage, updateStatus, deleteTicket, confirmClosure, reopenTicket, rateTicket };
