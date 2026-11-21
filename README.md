@@ -1,44 +1,113 @@
 # Central de Chamados
 
-Sistema de gerenciamento de chamados com interfaces web e mobile e uma API centralizada. O projeto é organizado em três aplicações que trabalham em conjunto: backend, frontend web e aplicativo mobile.
+## Sobre o projeto
 
-## Objetivo
+O **Central de Chamados** é um sistema de gerenciamento de solicitações desenvolvido para centralizar o registro, o acompanhamento e o atendimento de chamados.
 
-Centralizar o registro e o acompanhamento de solicitações, oferecendo uma experiência para clientes e atendentes.
+A plataforma conecta clientes e atendentes em um único ambiente, permitindo que os clientes registrem solicitações e acompanhem seu andamento, enquanto os atendentes podem organizar, gerenciar e responder aos chamados.
+
+O projeto conta com uma aplicação web, um aplicativo mobile e uma API centralizada, proporcionando acesso às principais funcionalidades por diferentes dispositivos.
+
+## Demonstração
+
+O Central de Chamados está disponível para acesso em produção:
+
+**[Acessar o sistema](https://central-chamados-web.vercel.app)**
+
+### Telas do sistema
+
+![Seleção de perfil](docs/images/01-selecao-perfil.jpg)
+
+![Acesso do cliente](docs/images/02-acesso-cliente.jpg)
+
+![Painel do atendente](docs/images/03-painel-atendente.jpg)
+
+![Detalhes do chamado](docs/images/04-detalhes-chamado.jpg)
 
 ## Funcionalidades
 
-- Acesso ao sistema com perfis de cliente e atendente
-- Criação de conta e autenticação
-- Interface web para utilização do sistema
-- Aplicativo mobile para acesso em dispositivos móveis
-- API para comunicação entre as aplicações
+O Central de Chamados disponibiliza funcionalidades específicas para clientes e atendentes.
 
-## Tecnologias
+### Área do cliente
+
+- Cadastro e autenticação de usuários.
+- Abertura de novos chamados, com descrição, categoria e prioridade.
+- Acompanhamento dos chamados e seus respectivos status.
+- Comunicação com os atendentes por meio de mensagens.
+- Consulta ao histórico de solicitações.
+- Possibilidade de recusar uma resolução e reabrir um chamado.
+- Cancelamento de chamados.
+- Avaliação do atendimento recebido.
+
+### Área do atendente
+
+- Painel para acompanhamento e gerenciamento dos chamados.
+- Atendimento e comunicação com clientes por meio de mensagens.
+- Atualização do andamento dos chamados.
+- Consulta aos chamados e seus históricos.
+
+### Acompanhamento dos chamados
+
+O sistema utiliza os seguintes status para representar o ciclo de atendimento:
+
+- **Novo:** chamado registrado e aguardando atendimento.
+- **Em atendimento:** chamado em processo de análise ou resolução.
+- **Resolvido:** solução apresentada ao cliente.
+- **Fechado:** atendimento encerrado.
+- **Cancelado:** chamado cancelado.
+
+## Tecnologias utilizadas
 
 | Camada | Tecnologias |
-| --- | --- |
+|---|---|
 | Backend | Node.js, Express e Prisma |
 | Frontend web | React e Vite |
 | Aplicativo mobile | React Native e Expo |
+| Banco de dados | PostgreSQL |
+| Infraestrutura do banco | Supabase |
+| Hospedagem das aplicações | Vercel |
 
-## Estrutura do projeto
+## Arquitetura do projeto
+
+O projeto é organizado em três aplicações independentes que trabalham em conjunto:
+
+- **Backend:** disponibiliza a API responsável pelas regras de negócio, autenticação e comunicação com o banco de dados.
+- **Frontend web:** oferece a interface para acesso e gerenciamento dos chamados pelo navegador.
+- **Aplicativo mobile:** disponibiliza as principais funcionalidades do sistema em dispositivos móveis.
+
+As aplicações web e mobile consomem a mesma API centralizada, que utiliza o Prisma para acessar o banco de dados PostgreSQL hospedado no Supabase.
+
+### Estrutura do repositório
 
 ```text
 central-chamados/
-├── backend/       # API, regras de negócio e acesso a dados
+├── backend/       # API e regras de negócio
 ├── frontend/      # Aplicação web
 ├── mobile-app/    # Aplicativo React Native / Expo
 └── README.md
 ```
 
-## Pré-requisitos
+## Aplicação em produção
 
-Antes de começar, instale:
+O Central de Chamados está disponível em ambiente de produção, com suas aplicações hospedadas na Vercel e o banco de dados PostgreSQL gerenciado pelo Supabase.
 
-- Node.js 26 (versão definida no `.nvmrc`)
-- npm
-- Expo Go, caso queira testar em um dispositivo físico
+- **Frontend web:** hospedado na Vercel.
+- **Backend (API):** hospedado na Vercel.
+- **Banco de dados:** PostgreSQL hospedado no Supabase.
+
+O ambiente de produção permite acessar o sistema pela internet, sem a necessidade de executar as aplicações localmente.
+
+**Acesso:** [https://central-chamados-web.vercel.app](https://central-chamados-web.vercel.app)
+
+## Desenvolvimento local
+
+### Pré-requisitos
+
+Antes de iniciar, instale:
+
+- [Node.js 26](https://nodejs.org/) — versão definida no arquivo `.nvmrc`.
+- npm — gerenciador de pacotes do Node.js.
+- [Expo Go](https://expo.dev/go) — caso queira executar o aplicativo em um dispositivo físico.
 
 Verifique as versões instaladas:
 
@@ -47,50 +116,42 @@ node -v
 npm -v
 ```
 
-Se necessário, instale o Node.js pela página oficial: https://nodejs.org.
-
-## Instalação e execução
-
-As três aplicações possuem dependências próprias. Execute os comandos a seguir na raiz do repositório, abrindo um terminal separado para cada aplicação.
-
 ### 1. Backend
 
-Entre na pasta e instale as dependências:
+Acesse a pasta do backend e instale as dependências:
 
 ```bash
-cd central-chamados/backend
+cd backend
 npm install
 ```
 
-Crie o arquivo de ambiente a partir do exemplo:
+Copie o arquivo `.env.example` para `.env`.
 
-- macOS/Linux:
-
-```bash
-cp .env.example .env
-```
-
-- Windows PowerShell:
+No Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-- Windows CMD:
+No macOS ou Linux:
 
-```cmd
-copy .env.example .env
+```bash
+cp .env.example .env
 ```
 
-O exemplo já autoriza as duas origens web usadas no desenvolvimento: Vite (`http://localhost:5173`) e Expo web (`http://localhost:8081`). Se o frontend for executado em outra origem/porta, adicione-a explicitamente à variável `CORS_ORIGIN`, separando as origens por vírgula:
+Configure as variáveis de ambiente no arquivo `.env`:
 
-```env
-CORS_ORIGIN="http://localhost:5173,http://localhost:8081,http://localhost:3000"
-```
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | Conexão com o PostgreSQL pelo pooler de transações do Supabase. |
+| `DIRECT_URL` | Conexão direta ou pelo pooler de sessão do Supabase. |
+| `JWT_SECRET` | Chave utilizada para autenticação dos usuários. |
+| `PORT` | Porta de execução da API. O padrão é `3333`. |
+| `CORS_ORIGIN` | Origens autorizadas a acessar a API. |
 
-Mantenha somente as origens necessárias ao seu ambiente; não use curingas nem adicione origens públicas sem necessidade. O CORS se aplica a navegadores; o aplicativo nativo não depende dessa configuração.
+Configure as conexões do banco conforme as orientações do Supabase e os exemplos disponíveis em `.env.example`.
 
-Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
+Execute as migrações, prepare os dados de demonstração e inicie o servidor:
 
 ```bash
 npx prisma migrate dev --name init
@@ -98,24 +159,20 @@ npm run seed
 npm run dev
 ```
 
-Por padrão, a API ficará disponível em:
+Por padrão, a API estará disponível em:
 
-```text
-http://localhost:3333
-```
-
-Mantenha esse terminal aberto enquanto utilizar o sistema.
+`http://localhost:3333`
 
 ### 2. Frontend web
 
-Em outro terminal:
+Em outro terminal, acesse a pasta do frontend:
 
 ```bash
-cd central-chamados/frontend
+cd frontend
 npm install
 ```
 
-Crie o arquivo `.env` usando o mesmo procedimento da seção do backend (copiando `.env.example`). Confira se a URL da API está configurada:
+Copie `.env.example` para `.env` e configure:
 
 ```env
 VITE_API_URL="http://localhost:3333"
@@ -127,34 +184,32 @@ Inicie a aplicação:
 npm run dev
 ```
 
-O Vite exibirá o endereço local, normalmente:
+Por padrão, o frontend estará disponível em:
 
-```text
-http://localhost:5173
-```
-
-Abra o endereço informado no navegador.
+`http://localhost:5173`
 
 ### 3. Aplicativo mobile
 
-Em um terceiro terminal:
+Em outro terminal, acesse a pasta do aplicativo:
 
 ```bash
-cd central-chamados/mobile-app
+cd mobile-app
 npm install
 ```
 
-Crie um arquivo `.env` na pasta `mobile-app` e informe o endereço da API:
+Crie o arquivo `.env` com a variável:
 
 ```env
 EXPO_PUBLIC_API_URL="http://SEU_IP_DA_MAQUINA:3333"
 ```
 
-Escolha o endereço conforme o ambiente de execução:
+Substitua `SEU_IP_DA_MAQUINA` pelo endereço IP do computador quando utilizar um dispositivo físico na mesma rede Wi-Fi.
 
-- **Navegador (Expo web):** use `http://localhost:3333`.
-- **Celular físico com Expo Go:** use o endereço IP do computador na rede Wi-Fi, por exemplo `http://192.168.0.10:3333`. O celular e o computador devem estar na mesma rede.
-- **Emulador Android do Android Studio:** normalmente use `http://10.0.2.2:3333`.
+Considere os seguintes endereços conforme o ambiente:
+
+- **Expo Web:** `localhost` pode ser utilizado.
+- **Dispositivo físico:** utilize o IP local do computador na rede Wi-Fi.
+- **Emulador Android:** utilize `10.0.2.2` para acessar o computador hospedeiro.
 
 Inicie o Expo:
 
@@ -162,50 +217,30 @@ Inicie o Expo:
 npx expo start
 ```
 
-A partir do terminal do Expo:
+A partir do terminal do Expo, você poderá:
 
-- Pressione `w` para abrir no navegador.
-- Pressione `a` para abrir no emulador Android.
-- Ou leia o QR code com o Expo Go no celular.
+- Pressionar `w` para abrir a versão web.
+- Pressionar `a` para executar no emulador Android.
+- Escanear o QR Code com o Expo Go para utilizar um dispositivo físico.
 
-Se alterar o arquivo `.env` com o Expo em execução, encerre o processo com `Ctrl+C` e inicie novamente para carregar as novas variáveis.
+Após alterar variáveis no `.env`, reinicie o servidor Expo.
 
-## Acesso para demonstração
+### Ordem de inicialização
 
-O projeto disponibiliza as seguintes contas de demonstração:
+Para executar o sistema completo localmente:
 
-| Perfil | E-mail |
-| --- | --- |
-| Cliente | `cliente@demo.com` |
-| Atendente | `atendente@demo.com` |
+1. Inicie o backend.
+2. Inicie o frontend web.
+3. Inicie o aplicativo mobile, caso queira testá-lo.
 
-Senha para ambas as contas:
+Com os serviços ativos, acesse o frontend pelo endereço `http://localhost:5173`.
 
-```text
-123456
-```
-
-Também é possível criar uma nova conta pela tela de cadastro.
-
-## Ordem de inicialização
-
-Para utilizar o sistema localmente:
-
-1. Inicie o backend com `npm run dev`.
-2. Inicie o frontend web com `npm run dev`.
-3. Inicie o aplicativo mobile com `npx expo start`, se for utilizá-lo.
-4. Acesse o frontend em `http://localhost:5173` e confirme que a API está disponível em `http://localhost:3333`.
+A API estará disponível em `http://localhost:3333`.
 
 ## Contribuição
 
-Contribuições são bem-vindas. Para propor mudanças, crie uma branch a partir de `main`, implemente e teste suas alterações e abra um pull request descrevendo o que foi modificado.
-
-### Dependências e integração contínua
-
-- Cada aplicação tem seu `package-lock.json` versionado. Para instalar exatamente as versões registradas, use `npm ci` em vez de `npm install`. Use `npm install <pacote>` apenas quando for adicionar ou atualizar uma dependência, e commite o `package-lock.json` alterado junto.
-- A versão do Node.js usada no projeto fica no arquivo `.nvmrc` da raiz. Com o nvm, basta rodar `nvm use` na raiz.
-- O workflow `.github/workflows/ci.yml` roda em todo push para a `main` e em todo pull request. Ele instala as dependências e executa o build do backend, do frontend web e do app mobile. O resultado aparece na aba **Actions** do GitHub e como status no pull request; um pull request com o CI vermelho não deve ser mergeado.
+Contribuições são bem-vindas!
 
 ## Licença
 
-Consulte o arquivo de licença do repositório para informações sobre uso e distribuição.
+Este projeto ainda não possui uma licença definida.
