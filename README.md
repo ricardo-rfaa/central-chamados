@@ -1,121 +1,125 @@
 # Central de Chamados
 
-Sistema de gerenciamento de chamados com interfaces web e mobile e uma API centralizada. O projeto é organizado em três aplicações que trabalham em conjunto: backend, frontend web e aplicativo mobile.
+O **Central de Chamados** é um sistema de gerenciamento de solicitações que aproxima clientes e atendentes, permitindo registrar chamados, acompanhar atendimentos e organizar as demandas de suporte.
 
-## Objetivo
-
-Centralizar o registro e o acompanhamento de solicitações, oferecendo uma experiência para clientes e atendentes.
+O projeto possui aplicações web e mobile integradas a uma API centralizada.
 
 ## Funcionalidades
 
-- Acesso ao sistema com perfis de cliente e atendente
-- Criação de conta e autenticação
-- Interface web para utilização do sistema
-- Aplicativo mobile para acesso em dispositivos móveis
-- API para comunicação entre as aplicações
+O sistema oferece recursos para clientes registrarem e acompanharem solicitações, trocarem mensagens com os atendentes, consultarem seu histórico e avaliarem o atendimento.
 
-## Tecnologias
+Para os atendentes, disponibiliza gerenciamento de chamados por status, prioridade, categoria e SLA, comunicação com clientes e um painel de indicadores da operação.
 
-| Camada | Tecnologias |
-| --- | --- |
+Os chamados possuem numeração sequencial para facilitar sua identificação, mantendo um identificador interno único para controle do sistema.
+
+## Acesso à aplicação
+
+A versão web está disponível em:
+
+**[Acessar Central de Chamados](https://central-chamados-web.vercel.app)**
+
+O projeto também possui uma aplicação mobile desenvolvida com React Native e Expo.
+
+## Tecnologias utilizadas
+
+| Área | Tecnologias |
+|---|---|
 | Backend | Node.js, Express e Prisma |
-| Frontend web | React e Vite |
+| Frontend web | React, TypeScript e Vite |
 | Aplicativo mobile | React Native e Expo |
+| Banco de dados | PostgreSQL e Supabase |
+| Hospedagem | Vercel |
+
+## Arquitetura
+
+As aplicações web e mobile consomem uma API desenvolvida com Node.js e Express. O backend utiliza Prisma para acessar o banco de dados PostgreSQL hospedado no Supabase.
+
+```text
+Aplicação Web ───┐
+                 ├── API (Node.js / Express)
+Aplicação Mobile ┘          │
+                            ▼
+                    Prisma / PostgreSQL
+                         Supabase
+```
 
 ## Estrutura do projeto
 
 ```text
 central-chamados/
-├── backend/       # API, regras de negócio e acesso a dados
+├── backend/       # API e regras de negócio
 ├── frontend/      # Aplicação web
-├── mobile-app/    # Aplicativo React Native / Expo
+├── mobile-app/    # Aplicação mobile
 └── README.md
 ```
 
 ## Pré-requisitos
 
-Antes de começar, instale:
+- **Node.js 26**, conforme definido no `.nvmrc`.
+- **npm**.
+- **Expo Go**, caso utilize um dispositivo Android físico para testar o aplicativo mobile.
 
-- Node.js 26 (versão definida no `.nvmrc`)
-- npm
-- Expo Go, caso queira testar em um dispositivo físico
-
-Verifique as versões instaladas:
+Confira as versões instaladas:
 
 ```bash
 node -v
 npm -v
 ```
 
-Se necessário, instale o Node.js pela página oficial: https://nodejs.org.
+O Node.js está disponível em [nodejs.org](https://nodejs.org/).
 
-## Instalação e execução
+## Instalação e execução local
 
-As três aplicações possuem dependências próprias. Execute os comandos a seguir na raiz do repositório, abrindo um terminal separado para cada aplicação.
+Cada aplicação possui suas próprias dependências. Execute os procedimentos em terminais separados, a partir da raiz do repositório.
 
 ### 1. Backend
 
-Entre na pasta e instale as dependências:
-
 ```bash
-cd central-chamados/backend
+cd backend
 npm install
 ```
 
-Crie o arquivo de ambiente a partir do exemplo:
-
-- macOS/Linux:
+Crie o arquivo `.env` a partir do `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-- Windows PowerShell:
+No Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-- Windows CMD:
+Configure `DATABASE_URL`, `DIRECT_URL` e `JWT_SECRET` no arquivo `.env`.
 
-```cmd
-copy .env.example .env
-```
+As URLs de conexão podem ser obtidas em **Supabase → Connect**. Utilize a conexão apropriada para o Prisma Client e a conexão direta ou Session Pooler para as migrações.
 
-O exemplo já autoriza as duas origens web usadas no desenvolvimento: Vite (`http://localhost:5173`) e Expo web (`http://localhost:8081`). Se o frontend for executado em outra origem/porta, adicione-a explicitamente à variável `CORS_ORIGIN`, separando as origens por vírgula:
-
-```env
-CORS_ORIGIN="http://localhost:5173,http://localhost:8081,http://localhost:3000"
-```
-
-Mantenha somente as origens necessárias ao seu ambiente; não use curingas nem adicione origens públicas sem necessidade. O CORS se aplica a navegadores; o aplicativo nativo não depende dessa configuração.
-
-Em seguida, execute as migrações, carregue os dados iniciais e inicie a API:
+Aplique as migrações e carregue os dados de demonstração:
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate deploy
 npm run seed
+```
+
+Inicie a API:
+
+```bash
 npm run dev
 ```
 
-Por padrão, a API ficará disponível em:
-
-```text
-http://localhost:3333
-```
-
-Mantenha esse terminal aberto enquanto utilizar o sistema.
+Por padrão, estará disponível em `http://localhost:3333`.
 
 ### 2. Frontend web
 
 Em outro terminal:
 
 ```bash
-cd central-chamados/frontend
+cd frontend
 npm install
 ```
 
-Crie o arquivo `.env` usando o mesmo procedimento da seção do backend (copiando `.env.example`). Confira se a URL da API está configurada:
+Crie o arquivo `.env` com base no `.env.example` e configure:
 
 ```env
 VITE_API_URL="http://localhost:3333"
@@ -127,34 +131,28 @@ Inicie a aplicação:
 npm run dev
 ```
 
-O Vite exibirá o endereço local, normalmente:
-
-```text
-http://localhost:5173
-```
-
-Abra o endereço informado no navegador.
+O endereço local normalmente será `http://localhost:5173`.
 
 ### 3. Aplicativo mobile
 
-Em um terceiro terminal:
+Em outro terminal:
 
 ```bash
-cd central-chamados/mobile-app
+cd mobile-app
 npm install
 ```
 
-Crie um arquivo `.env` na pasta `mobile-app` e informe o endereço da API:
+Crie um arquivo `.env` e configure o endereço da API:
 
 ```env
 EXPO_PUBLIC_API_URL="http://SEU_IP_DA_MAQUINA:3333"
 ```
 
-Escolha o endereço conforme o ambiente de execução:
+Escolha o endereço conforme o ambiente:
 
-- **Navegador (Expo web):** use `http://localhost:3333`.
-- **Celular físico com Expo Go:** use o endereço IP do computador na rede Wi-Fi, por exemplo `http://192.168.0.10:3333`. O celular e o computador devem estar na mesma rede.
-- **Emulador Android do Android Studio:** normalmente use `http://10.0.2.2:3333`.
+- **Navegador:** `http://localhost:3333`.
+- **Celular físico:** IP local do computador, por exemplo `http://192.168.0.10:3333`. Ambos devem estar na mesma rede.
+- **Emulador Android:** normalmente `http://10.0.2.2:3333`.
 
 Inicie o Expo:
 
@@ -162,50 +160,39 @@ Inicie o Expo:
 npx expo start
 ```
 
-A partir do terminal do Expo:
+Pressione `w` para abrir no navegador, `a` para iniciar no emulador Android ou leia o QR code com o Expo Go.
 
-- Pressione `w` para abrir no navegador.
-- Pressione `a` para abrir no emulador Android.
-- Ou leia o QR code com o Expo Go no celular.
+**Compatibilidade:** o aplicativo utiliza Expo SDK 52. Em dispositivos Android, é possível instalar uma versão compatível do Expo Go pelo [arquivo oficial de versões](https://expo.dev/go?device=true&platform=android&sdkVersion=52). Em iPhones físicos, será necessário utilizar uma development build ou atualizar o SDK do projeto.
 
-Se alterar o arquivo `.env` com o Expo em execução, encerre o processo com `Ctrl+C` e inicie novamente para carregar as novas variáveis.
+Se alterar o `.env` com o Expo em execução, reinicie o processo para carregar as novas configurações.
 
-## Acesso para demonstração
+## Contas de demonstração
 
-O projeto disponibiliza as seguintes contas de demonstração:
+O seed disponibiliza contas para os perfis de cliente e atendente:
 
 | Perfil | E-mail |
-| --- | --- |
+|---|---|
 | Cliente | `cliente@demo.com` |
+| Cliente | `joao.cliente@demo.com` |
 | Atendente | `atendente@demo.com` |
+| Atendente | `ana.atendente@demo.com` |
 
-Senha para ambas as contas:
+**Senha de todas as contas:** `123456`.
 
-```text
-123456
-```
+Também é possível criar novas contas pela tela de cadastro.
 
-Também é possível criar uma nova conta pela tela de cadastro.
+> As credenciais são destinadas exclusivamente a testes e demonstrações. Não utilize senhas de demonstração em ambientes de produção.
 
-## Ordem de inicialização
+## Segurança
 
-Para utilizar o sistema localmente:
-
-1. Inicie o backend com `npm run dev`.
-2. Inicie o frontend web com `npm run dev`.
-3. Inicie o aplicativo mobile com `npx expo start`, se for utilizá-lo.
-4. Acesse o frontend em `http://localhost:5173` e confirme que a API está disponível em `http://localhost:3333`.
+Não compartilhe arquivos `.env`, credenciais do banco de dados ou segredos JWT. Utilize valores próprios e mantenha os arquivos de ambiente fora do controle de versão.
 
 ## Contribuição
 
-Contribuições são bem-vindas. Para propor mudanças, crie uma branch a partir de `main`, implemente e teste suas alterações e abra um pull request descrevendo o que foi modificado.
+Contribuições são bem-vindas! Para propor alterações, crie uma branch a partir de `main`, implemente e teste as modificações e abra um pull request descrevendo o que foi realizado.
 
-### Dependências e integração contínua
+O projeto utiliza GitHub Actions para verificar a sintaxe e gerar o Prisma Client no backend, construir o frontend e verificar os tipos e a exportação web do aplicativo mobile. Os resultados ficam disponíveis na aba **Actions** e nos pull requests.
 
-- Cada aplicação tem seu `package-lock.json` versionado. Para instalar exatamente as versões registradas, use `npm ci` em vez de `npm install`. Use `npm install <pacote>` apenas quando for adicionar ou atualizar uma dependência, e commite o `package-lock.json` alterado junto.
-- A versão do Node.js usada no projeto fica no arquivo `.nvmrc` da raiz. Com o nvm, basta rodar `nvm use` na raiz.
-- O workflow `.github/workflows/ci.yml` roda em todo push para a `main` e em todo pull request. Ele instala as dependências e executa o build do backend, do frontend web e do app mobile. O resultado aparece na aba **Actions** do GitHub e como status no pull request; um pull request com o CI vermelho não deve ser mergeado.
+Para instalar as dependências respeitando as versões registradas nos arquivos de lock, utilize `npm ci` dentro da aplicação correspondente.
 
-## Licença
-
-Consulte o arquivo de licença do repositório para informações sobre uso e distribuição.
+A versão do Node.js está definida no `.nvmrc`. Caso utilize nvm, execute `nvm use` na raiz do repositório.
