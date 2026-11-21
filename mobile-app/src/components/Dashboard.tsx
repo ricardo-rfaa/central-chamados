@@ -65,7 +65,7 @@ export function Dashboard() {
 
   return (
     <View style={styles.screen}>
-      <TopBar onNewTicket={() => router.push('/novo-chamado')} onNewAgent={() => router.push('/cadastro-atendente')} />
+      <TopBar onNewTicket={() => router.push('/novo-chamado')} onNewAgent={() => router.push('/cadastro-atendente')} onIndicators={() => router.push('/indicadores')} />
 
       <FlatList
         key={`tickets-${columns}`}

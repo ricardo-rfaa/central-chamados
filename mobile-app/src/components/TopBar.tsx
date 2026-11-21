@@ -6,7 +6,7 @@ import { colors } from '../theme/colors'
 // Sempre em layout "mobile" agora — não existe mais o ternário isMobile
 // da versão web, porque este app roda só em celular. useSafeAreaInsets
 // é o equivalente RN ao env(safe-area-inset-top) do CSS.
-export function TopBar({ onNewTicket, onNewAgent }: { onNewTicket: () => void; onNewAgent: () => void }) {
+export function TopBar({ onNewTicket, onNewAgent, onIndicators }: { onNewTicket: () => void; onNewAgent: () => void; onIndicators?: () => void }) {
   const insets = useSafeAreaInsets()
   const { user, signOut } = useAuth()
 
@@ -23,9 +23,16 @@ export function TopBar({ onNewTicket, onNewAgent }: { onNewTicket: () => void; o
             <Text style={styles.primaryButtonText}>+ Chamado</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={onNewAgent} style={styles.secondaryButton}>
-            <Text style={styles.secondaryButtonText}>+ Atend.</Text>
-          </TouchableOpacity>
+          <>
+            {onIndicators && (
+              <TouchableOpacity onPress={onIndicators} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>Indicadores</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={onNewAgent} style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>+ Atend.</Text>
+            </TouchableOpacity>
+          </>
         )}
         {user && (
           <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
