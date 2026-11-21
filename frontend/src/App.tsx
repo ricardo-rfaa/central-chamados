@@ -14,12 +14,13 @@ import { TicketRow } from './components/TicketRow'
 import { TicketCard } from './components/TicketCard'
 import { StatCard } from './components/StatCard'
 import { TopBar } from './components/TopBar'
+import { IndicatorsView } from './pages/IndicatorsView'
 
-type View = 'dashboard' | 'detail'
+type View = 'dashboard' | 'indicators' | 'detail'
 type FilterStatus = Status | 'todos'
 
 export default function App() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -85,6 +86,30 @@ export default function App() {
     { key: 'cancelado', label: 'Cancelados' },
   ]
 
+  // Abas só para atendentes: a fila de trabalho e os indicadores.
+  const tabs = user?.role === 'agent' && (
+    <div style={{ display: 'flex', gap: 4, padding: isMobile ? '12px 14px 0' : '16px 24px 0', borderBottom: '1px solid #21262d' }}>
+      {([['dashboard', 'Chamados'], ['indicators', 'Indicadores']] as const).map(([key, label]) => (
+        <button key={key} onClick={() => setView(key)} style={{ padding: '8px 14px', background: 'none', border: 'none', borderBottom: `2px solid ${view === key ? '#f0a84a' : 'transparent'}`, color: view === key ? '#e6edf3' : '#8b949e', fontSize: 13, fontWeight: view === key ? 600 : 400, cursor: 'pointer', marginBottom: -1 }}>
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+
+  if (view === 'indicators') {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0d1117' }}>
+        <TopBar onNew={() => setShowForm(true)} onHome={() => setView('dashboard')} onNewAgent={() => setShowRegisterAgent(true)} />
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {tabs}
+          <IndicatorsView />
+        </div>
+        {showRegisterAgent && <RegisterAgentModal onClose={() => setShowRegisterAgent(false)} />}
+      </div>
+    )
+  }
+
   if (view === 'detail' && selected) {
     const fresh = tickets.find(t => t.id === selected.id) || selected
     return (
@@ -104,6 +129,7 @@ export default function App() {
       <TopBar onNew={() => setShowForm(true)} onHome={() => setView('dashboard')} onNewAgent={() => setShowRegisterAgent(true)} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
+        {tabs}
         {loading && (
           <div style={{ padding: isMobile ? '16px 14px' : '16px 24px', color: '#8b949e', fontSize: 13 }}>Carregando chamados...</div>
         )}
