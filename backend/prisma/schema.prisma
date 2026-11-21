@@ -69,6 +69,9 @@ model User {
 
 model Ticket {
   id          String       @id @default(uuid())
+  // Número curto e sequencial exibido para as pessoas (ex.: #00042).
+  // O id (UUID) continua sendo o identificador usado nas rotas da API.
+  number      Int          @unique @default(autoincrement())
   title       String
   description String
   category    Category

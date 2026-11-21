@@ -7,6 +7,7 @@ const { teamToLabel } = require("./team.mapper");
 function toTicketDTO(ticket) {
   return {
     id: ticket.id,
+    number: ticket.number,
     title: ticket.title,
     description: ticket.description,
     category: ticket.category,
