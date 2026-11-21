@@ -19,6 +19,7 @@ export interface Rating {
 
 export interface Ticket {
   id: string
+  number: number
   title: string
   description: string
   category: Category

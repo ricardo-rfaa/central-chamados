@@ -5,6 +5,7 @@ import type { Ticket, Priority, Status } from '../types/ticket'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
 import { listTickets } from '../services/ticketService'
+import { fmtTicketNumber } from '../lib/ticketFormatting'
 import { colors } from '../theme/colors'
 import { TicketCard } from './TicketCard'
 import { StatCard } from './StatCard'
@@ -49,7 +50,7 @@ export function Dashboard() {
   const filtered = tickets.filter(t => {
     if (filterStatus !== 'todos' && t.status !== filterStatus) return false
     if (filterPriority !== 'todas' && t.priority !== filterPriority) return false
-    if (search && !t.title.toLowerCase().includes(search.toLowerCase()) && !t.id.toLowerCase().includes(search.toLowerCase()) && !t.requester.toLowerCase().includes(search.toLowerCase())) return false
+    if (search && !t.title.toLowerCase().includes(search.toLowerCase()) && !fmtTicketNumber(t.number).includes(search.trim()) && !t.requester.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 

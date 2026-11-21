@@ -6,7 +6,7 @@ import { CATEGORY_LABELS } from '../types/ticket'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
 import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, reopenTicket as reopenTicketApi, rateTicket } from '../services/ticketService'
-import { fmtDate } from '../lib/ticketFormatting'
+import { fmtDate, fmtTicketNumber } from '../lib/ticketFormatting'
 import { colors } from '../theme/colors'
 import { StatusBadge, PriorityBadge } from './Badge'
 import { InfoSection, InfoRow } from './InfoSection'
@@ -85,7 +85,7 @@ export function TicketDetail({ ticket, onUpdate }: { ticket: Ticket; onUpdate: (
           <Text style={styles.backButtonText}>← Voltar</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={styles.ticketId}>{ticket.id}</Text>
+          <Text style={styles.ticketId}>{fmtTicketNumber(ticket.number)}</Text>
           <Text style={styles.ticketTitle} numberOfLines={2}>{ticket.title}</Text>
         </View>
         <View style={styles.headerBadges}>

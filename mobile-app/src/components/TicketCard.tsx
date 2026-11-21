@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import type { Ticket } from '../types/ticket'
 import { CATEGORY_LABELS } from '../types/ticket'
 import { priorityColors, colors } from '../theme/colors'
-import { fmtDate } from '../lib/ticketFormatting'
+import { fmtDate, fmtTicketNumber } from '../lib/ticketFormatting'
 import { Badge, PriorityBadge, StatusBadge } from './Badge'
 
 export function TicketCard({ ticket, onPress }: { ticket: Ticket; onPress: () => void }) {
@@ -11,7 +11,7 @@ export function TicketCard({ ticket, onPress }: { ticket: Ticket; onPress: () =>
     <TouchableOpacity onPress={onPress} style={[styles.card, { borderLeftColor: pc.border }]}>
       <View style={styles.topRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.id}>{ticket.id}</Text>
+          <Text style={styles.id}>{fmtTicketNumber(ticket.number)}</Text>
           <Text style={styles.title}>{ticket.title}</Text>
         </View>
         <PriorityBadge p={ticket.priority} />
