@@ -17,6 +17,7 @@ export interface Rating {
 
 export interface Ticket {
   id: string
+  number: number
   title: string
   description: string
   category: Category
@@ -60,6 +61,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 export const mockTickets: Ticket[] = [
   {
     id: 'CHM-1042',
+    number: 1042,
     title: 'Monitor não liga após troca de cabo',
     description: 'O monitor da estação de trabalho 14 parou de funcionar após trocarmos o cabo HDMI. Testamos outros cabos e o monitor não responde em nenhuma entrada.',
     category: 'hardware',
@@ -81,6 +83,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1041',
+    number: 1041,
     title: 'Excel fecha inesperadamente ao abrir planilha',
     description: 'O Microsoft Excel 365 fecha sozinho toda vez que tento abrir a planilha de controle financeiro Q3. Outros arquivos abrem normalmente.',
     category: 'software',
@@ -102,6 +105,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1040',
+    number: 1040,
     title: 'VPN corporativa sem conexão — equipe remota',
     description: 'Toda a equipe de vendas externas está sem acesso à VPN desde as 06h. Impede acesso ao CRM e sistemas internos.',
     category: 'rede',
@@ -123,6 +127,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1039',
+    number: 1039,
     title: 'Solicitação de acesso ao sistema RH',
     description: 'Funcionário novo precisa de acesso ao sistema de RH e ponto eletrônico. Admissão foi em 15/08.',
     category: 'acesso',
@@ -141,6 +146,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1038',
+    number: 1038,
     title: 'Impressora HP do RH imprimindo com listras',
     description: 'A impressora HP LaserJet do setor de RH está imprimindo todas as páginas com listras horizontais pretas. Já substituímos o cartucho.',
     category: 'hardware',
@@ -162,6 +168,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1037',
+    number: 1037,
     title: 'Notebook lento após atualização do Windows',
     description: 'Após a atualização automática do Windows 11 22H2 aplicada na noite de ontem, o notebook está com desempenho muito reduzido.',
     category: 'software',
@@ -186,6 +193,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1036',
+    number: 1036,
     title: 'Teclado com teclas travando',
     description: 'Algumas teclas do teclado mecânico estão presas: a letra "E", "R" e barra de espaço.',
     category: 'hardware',
@@ -207,6 +215,7 @@ export const mockTickets: Ticket[] = [
   },
   {
     id: 'CHM-1035',
+    number: 1035,
     title: 'Sem acesso ao e-mail corporativo',
     description: 'Não consigo acessar meu e-mail pelo Outlook nem pela web. Conta parece bloqueada.',
     category: 'acesso',

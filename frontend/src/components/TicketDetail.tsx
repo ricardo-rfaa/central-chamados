@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../services/api'
 import { sendMessage, updateStatus as updateStatusApi, confirmClosure as confirmClosureApi, reopenTicket as reopenTicketApi, rateTicket, deleteTicket as deleteTicketApi } from '../services/ticketService'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { fmtDate } from '../lib/ticketFormatting'
+import { fmtDate, fmtTicketNumber } from '../lib/ticketFormatting'
 import { inputStyle, btnStyle } from '../lib/styles'
 import { StatusBadge, PriorityBadge } from './Badge'
 import { InfoSection, InfoRow } from './InfoSection'
@@ -97,7 +97,7 @@ export function TicketDetail({ ticket, onBack, onUpdate, onDelete }: { ticket: T
           ← Voltar
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f0a84a' }}>{ticket.id}</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f0a84a' }}>{fmtTicketNumber(ticket.number)}</span>
           <div style={{ fontWeight: 600, fontSize: isMobile ? 14 : 15, color: '#e6edf3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'normal' : 'nowrap', lineHeight: 1.4 }}>{ticket.title}</div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>

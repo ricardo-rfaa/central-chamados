@@ -1,6 +1,6 @@
 import type { Ticket } from '../data'
 import { CATEGORY_LABELS } from '../data'
-import { priorityColor, fmtDate } from '../lib/ticketFormatting'
+import { priorityColor, fmtDate, fmtTicketNumber } from '../lib/ticketFormatting'
 import { Badge, PriorityBadge, StatusBadge } from './Badge'
 
 export function TicketCard({ ticket, onClick }: { ticket: Ticket; onClick: () => void }) {
@@ -9,7 +9,7 @@ export function TicketCard({ ticket, onClick }: { ticket: Ticket; onClick: () =>
     <div onClick={onClick} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6, padding: '14px 16px', cursor: 'pointer', borderLeft: `3px solid ${pc.border}`, display: 'flex', flexDirection: 'column', gap: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f0a84a' }}>{ticket.id}</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f0a84a' }}>{fmtTicketNumber(ticket.number)}</span>
           <div style={{ fontWeight: 600, fontSize: 14, color: '#e6edf3', marginTop: 2, lineHeight: 1.4 }}>{ticket.title}</div>
         </div>
         <PriorityBadge p={ticket.priority} />

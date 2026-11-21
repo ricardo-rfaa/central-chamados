@@ -6,6 +6,7 @@ import { ApiError } from './services/api'
 import { listTickets } from './services/ticketService'
 import { useIsMobile } from './hooks/useIsMobile'
 import { inputStyle } from './lib/styles'
+import { fmtTicketNumber } from './lib/ticketFormatting'
 import { NewTicketForm } from './components/NewTicketForm'
 import { RegisterAgentModal } from './pages/RegisterAgentModal'
 import { TicketDetail } from './components/TicketDetail'
@@ -65,7 +66,7 @@ export default function App() {
   const filtered = tickets.filter(t => {
     if (filterStatus !== 'todos' && t.status !== filterStatus) return false
     if (filterPriority !== 'todas' && t.priority !== filterPriority) return false
-    if (search && !t.title.toLowerCase().includes(search.toLowerCase()) && !t.id.toLowerCase().includes(search.toLowerCase()) && !t.requester.toLowerCase().includes(search.toLowerCase())) return false
+    if (search && !t.title.toLowerCase().includes(search.toLowerCase()) && !fmtTicketNumber(t.number).includes(search.trim()) && !t.requester.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 

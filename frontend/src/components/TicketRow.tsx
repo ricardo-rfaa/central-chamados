@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Ticket } from '../data'
 import { CATEGORY_LABELS } from '../data'
-import { fmtDate } from '../lib/ticketFormatting'
+import { fmtDate, fmtTicketNumber } from '../lib/ticketFormatting'
 import { Badge, PriorityBadge, StatusBadge } from './Badge'
 
 export const tdStyle: React.CSSProperties = { padding: '12px 16px', borderBottom: '1px solid #21262d', verticalAlign: 'middle' }
@@ -10,7 +10,7 @@ export function TicketRow({ ticket, onClick }: { ticket: Ticket; onClick: () => 
   const [hov, setHov] = useState(false)
   return (
     <tr onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ cursor: 'pointer', background: hov ? '#1c2128' : 'transparent', transition: 'background 0.1s' }}>
-      <td style={tdStyle}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f0a84a' }}>{ticket.id}</span></td>
+      <td style={tdStyle}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f0a84a' }}>{fmtTicketNumber(ticket.number)}</span></td>
       <td style={tdStyle}>
         <div style={{ fontWeight: 500, color: '#e6edf3', fontSize: 13, marginBottom: 2 }}>{ticket.title}</div>
         <div style={{ fontSize: 11, color: '#6e7681' }}>{ticket.requester} · {ticket.department}</div>
