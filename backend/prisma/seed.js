@@ -63,16 +63,26 @@ async function main() {
     },
   });
 
-  await prisma.message.createMany({
-    data: [
-      { ticketId: t2.id, authorId: client.id, from: "usuario", text: "O relatório mensal trava o sistema sempre que tento gerar." },
-      { ticketId: t2.id, authorId: agent.id, from: "tecnico", text: "Recebido, estou verificando os logs do servidor agora." },
-    ],
-  });
+  // IDs fixos + upsert: rodar o seed de novo não duplica as mensagens.
+  const messages = [
+    { id: "seed-message-1", ticketId: t2.id, authorId: client.id, from: "usuario", text: "O relatório mensal trava o sistema sempre que tento gerar." },
+    { id: "seed-message-2", ticketId: t2.id, authorId: agent.id, from: "tecnico", text: "Recebido, estou verificando os logs do servidor agora." },
+  ];
+
+  for (const message of messages) {
+    await prisma.message.upsert({
+      where: { id: message.id },
+      update: {},
+      create: message,
+    });
+  }
 
   console.log("Seed concluído: cliente@demo.com / atendente@demo.com — senha: 123456");
 }
 
 main()
-  .catch(console.error)
+  .catch((error) => {
+    console.error("Falha ao executar o seed:", error);
+    process.exitCode = 1;
+  })
   .finally(() => prisma.$disconnect());
